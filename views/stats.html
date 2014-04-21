@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>The Ohio Coleopterists</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content="John J Czaplewski"/>
+
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css" rel="stylesheet">
+
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+
+    <link rel="stylesheet" href="css/tipsy.css">
+    <style>
+
+    svg {
+      font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .bar {
+      fill: #7F6385;
+    }
+
+    .x.axis path {
+      display: none;
+    }
+
+    .line {
+      fill: none;
+      stroke: steelblue;
+      stroke-width: 1.5px;
+    }
+    .area {
+      fill:#CE7F4D;
+    }
+
+    .background {
+      fill: none;
+      pointer-events: all;
+    }
+
+    .county {
+      fill: #aaa;
+      stroke-width:1px;
+      stroke:#fff;
+    }
+    .county:hover {
+      stroke:#000;
+      stroke-width:2px;
+    }
+
+    .span12 {
+      margin: 0 auto;
+      text-align: center;
+    }
+    </style>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span12" id="map">
+          <h3>Occurrences by county</h3>
+          <div><a href="/upload"><i class="icon-arrow-left"></i> back to upload form</a></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="/lib/jquery.v2.0.min.js"></script>
+    <script src="/lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/lib/mustache.js"></script>
+    <script src="/lib/jquery.tipsy.js"></script>
+
+    <script>
+
+    var width = 960,
+        height = 500;
+
+    var projection = d3.geo.albers()
+        .rotate([82, 0])
+        .center([0, 40])
+        .scale(6500)
+        .translate([width / 1.8, height / 2.2]);
+
+    var path = d3.geo.path()
+        .projection(projection);
+
+    var svg = d3.select("#map").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    d3.json('/data/map', function(error, data) {
+      svg.selectAll(".counties")
+        .data(data.features)
+        .enter().append("path")
+        .attr("class", "county")
+        .attr("d", path)
+        .attr("id", function(d) {return d.properties.name;})
+        .style("fill", function(d) { return getColor(d.properties.occurrences)});
+
+      $('.county').tipsy({ 
+        gravity: 'e', 
+        html: true, 
+        title: function() {
+          var d = this.__data__, 
+              occurrences = d.properties.occurrences,
+              name = d.properties.name;
+          if (d.properties.occurrences == 0) {
+            return name;
+          } else {
+            return name + '<br>Occurrences: ' + occurrences; 
+          }
+        }
+      });
+    });
+    
+
+    function getColor(d) {
+      return d > 300  ? '#377C5A' :
+             d > 20  ? '#47966A' :
+             d > 10   ? '#57B07B' :
+             d > 3   ? '#69CB8B' :
+             d > 0    ? '#7CE79B' :
+                         '#bbb';
+    }
+
+    </script>
+</body>
+</html>

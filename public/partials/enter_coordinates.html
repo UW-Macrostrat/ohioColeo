@@ -1,0 +1,119 @@
+<div id="enterCoordinates">
+  <p>
+    <i>Select a coordinate format, and then enter them below. 
+    <br>
+    Drag the marker to adjust the location
+    </i>
+  </p>
+  <form role="form" onSubmit="return false;" class="form-inline" id="coordRadios">
+    <div class="radio">
+      <label>
+        <input type="radio" name="llType" value="dd" checked>
+        Decimal Degrees
+      </label>
+    </div>
+    <div class="radio">
+      <label>
+        <input type="radio" name="llType" value="dm">
+        Degrees decimal minutes
+      </label>
+    </div>
+    <div class="radio">
+      <label>
+        <input type="radio" name="llType" value="dms">
+        Degrees minutes seconds
+      </label>
+    </div>
+  </form>
+
+  <form role="form" onSubmit="return false;" id="coordMethods" class="geocode">
+    <span class="coordInput form-inline" id="dd">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label for="lat">Latitude</label>
+            <input class="form-control" id="lat" placeholder="Latitude (ex: 39.9613)" type="text">
+          </div>
+          <div class="form-group">
+            <label for="lng">Longitude</label>
+            <input id="lng" placeholder="Longitude (ex: -82.9991)" type="text" class="form-control">
+          </div>
+        </div>
+      </div>
+          
+    </span>
+
+    <span class="coordInput form-inline" id="dm">
+      <div class="row" id="coordInputRowDM">
+        <div class="col-sm-5">
+          <p><strong>Latitude</strong></p>
+        </div>
+        <div class="col-sm-5">
+          <p><strong>Longitude</strong></p>
+        </div>
+        <div class="col-sm-5">
+          <div class="form-group">
+            <label for="dm_lat_deg">Deg.</label>
+            <input id="dm_lat_deg" size="3" placeholder="Ex: 39" type="text" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="dm_lat_min">Min.</label>
+            <input id="dm_lat_min" size="7" placeholder="Ex: 57.234" type="text" class="form-control">
+          </div>
+        </div>
+        <div class="col-sm-5">
+          <div class="form-group">
+            <label for="dm_lng_deg">Deg.</label>
+            <input id="dm_lng_deg" size="3" placeholder="Ex: -82" type="text" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="dm_lng_min">Min.</label>
+            <input id="dm_lng_min" size="7" placeholder="Ex: 59.654" type="text" class="form-control">
+          </div>
+        </div>
+      </div>
+    </span>
+    
+    <span class="coordInput form-inline" id="dms">
+      <div class="row" id="coordInputRow">
+        <div class="col-sm-5">
+          <p><strong>Latitude</strong></p>
+        </div>
+        <div class="col-sm-5">
+          <p><strong>Longitude</strong></p>
+        </div>
+        <div class="col-sm-5">
+          <div class="form-group">
+            <label for="dms_lat_deg">Deg.</label>
+            <input id="dms_lat_deg" size="3" placeholder="Ex: 39" type="text" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="dms_lat_min">Min.</label>
+            <input id="dms_lat_min" size="3" placeholder="Ex: 57" type="text" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="dms_lat_sec">Sec.</label>
+            <input id="dms_lat_sec" size="7" placeholder="Ex: 40.68" type="text" class="form-control">
+          </div>
+        </div>
+        <div class="col-sm-5">
+          <div class="form-group">
+            <label for="dms_lng_deg">Deg.</label>
+            <input id="dms_lng_deg" size="3" placeholder="Ex: -82" type="text" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="dms_lng_min">Min.</label>
+            <input id="dms_lng_min" size="3" placeholder="Ex: 59" type="text" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="dms_lng_sec">Sec.</label>
+            <input id="dms_lng_sec" size="7" placeholder="Ex: 56.75" type="text" class="form-control">
+          </div>
+        </div>
+      </div>
+          
+    </span>
+    <div id="viewCoordinatesOnMap" class="btn btn-info">View on map</div>
+  </form>
+  <div class="btn btn-success mapSelectDone">Done</div>
+</div>

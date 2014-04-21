@@ -1,0 +1,14 @@
+{
+  "name": "Ohio-Coleopterists",
+  "description": "A beetle site",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "3.x",
+    "mustache": "0.7.x",
+    "consolidate": "0.9.x",
+    "connect": "2.7.x",
+    "easyimage": "0.1.x",
+    "pg" : "2.x",
+    "postgeo": "latest"
+  }
+}

@@ -1,0 +1,58 @@
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Ohio Beetle Database</a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="http://ohiocoleoptera.org/">Home</a></li>
+        {{#loggedin}}
+        <li class="dropdown"><a data-toggle="dropdown" class="dropdown-toggle" href="#" id="username" data-user="{{username}}">Welcome {{username}}<b class="caret"></b></a>
+            <ul role="menu" area-labelledby="login" class="dropdown-menu">
+                <li><a href="/addBeetle">Add Beetle</a>
+                </li>
+                <li><a href="/logout">Logout</a>
+                </li>
+            </ul>
+        </li>
+        {{/loggedin}}
+        {{^loggedin}}
+        <li class="dropdown">
+          <a href="/login" id="login" role="button" class="dropdown-toggle" data-toggle="dropdown">Login
+            <b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu" role="menu" area-labelledby="login">
+            <li>
+              <form class="form-horizontal" role="form" action="/login" method="POST" onSubmit="return validateLogin()" id="loginForm">
+                <div class="form-group" id="emailGroup">
+                  <div class="col-sm-12">
+                    <input type="email" class="form-control" id="emailInput" name="email" placeholder="Email">
+                    <span class="help-inline" id="email"></span>
+                  </div>
+                </div>
+                <div class="form-group" id="passwordGroup">
+                  <div class="col-sm-12">
+                    <input type="password" class="form-control" id="passwordInput" name="password" placeholder="Password">
+                    <span class="help-inline" id="password"></span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <button type="submit" class="btn btn-primary">Sign in</button>
+                  </div>
+                </div>
+              </form>
+            </li>
+          </ul>
+        </li>
+        {{/loggedin}}
+      </ul>
+    </div>
+  </div>
+</div>

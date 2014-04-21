@@ -1,0 +1,37 @@
+{{#occurrences}}
+<tr>
+  <td>
+    <div class="panel-group" id="accordion{{id}}">
+      <div class="panel-heading">
+        <a href="#collapse{{id}}" data-parent="#accordion{{id}}" data-toggle="collapse" ><i class="fa fa-plus-square fa-2x"></i></a>
+      </div>
+    </div>
+  </td>
+  <td>{{taxon_name}}</td>
+  <td>{{n_total_specimens}}</td>
+  <td>{{collector}}</td>
+</tr>
+<tr>
+  <td colspan="5" class="noBoarder">
+    <div class="panel-collapse collapse" id="collapse{{id}}" style="height:0px;">
+      <div class="panel-body">
+        <p>
+          <strong>Collection date:</strong> {{collection_start_date}} {{#collection_end_date}} - {{collection_end_date}} {{/collection_end_date}}<br><br>
+
+          <strong>Collection method:</strong> {{collection_method}}<br><br>
+
+          <strong>Bait:</strong> {{bait}} <br><br>
+
+          <strong>Medium:</strong> {{collection_medium}} <br><br>
+
+          <strong>Location:</strong> {{geometry}} <br><br>
+
+          <strong>Location notes:</strong> {{location_note}} <br><br>
+
+          <strong>Other notes:</strong> {{note}} <br><br>
+        </p>
+      </div>
+    </div>
+  </td>
+</tr>
+{{/occurrences}}

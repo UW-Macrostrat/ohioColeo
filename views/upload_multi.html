@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>The Ohio Coleopterist Society</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+    <link rel="stylesheet" href="/Leaflet.markercluster/dist/Markercluster.css" />
+    <link rel="stylesheet" href="/Leaflet.markercluster/dist/Markercluster.Default.css" />
+    <link rel="stylesheet" href="/bootstrap-datepicker/css/datepicker.css" />
+    <link href="/css/root.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/upload.css" rel="stylesheet"/>
+
+  </head>
+
+  <body>
+    {{>header}}
+
+    <div class="container" id="pageContent">
+      <div class="row">
+        <div class="col-sm-12">
+          <form method='POST' enctype='multipart/form-data' action='/addBeetle' id='uploadForm' onSubmit="return validate()" role="form">
+            <div class="col-sm-8 col-sm-offset-2">
+              <div id="progress">
+               <!-- <div class="formNav" title="Previous step">
+                  <i class="fa fa-angle-left fa-2x"></i>
+                </div>-->
+                
+                <div class="progressDot" title="Taxonomic information">
+                  <a href="/addBeetle/taxon_info" class="dotLink">
+                    <i id="prog1" class="fa fa-circle status"></i>
+                  </a>
+                </div>
+                <div class="progressDot" title="Location">
+                  <a href="/addBeetle/location" class="dotLink">
+                    <i id="prog2" class="fa fa-circle-o status"></i>
+                  </a>
+                </div>
+                <div class="progressDot" title="Collection details">
+                  <a href="/addBeetle/collection_info" class="dotLink">
+                    <i id="prog3" class="fa fa-circle-o status"></i>
+                  </a>
+                </div>
+                <div class="progressDot" title="Notes">
+                  <a href="/addBeetle/notes" class="dotLink">
+                    <i id="prog4" class="fa fa-circle-o status"></i>
+                  </a>
+                </div>
+                <div class="progressDot" title="Photo">
+                  <a href="/addBeetle/photo" class="dotLink">
+                    <i id="prog5" class="fa fa-circle-o status"></i>
+                  </a>
+                </div>
+                <div class="progressDot" title="Review and upload">
+                  <a href="/addBeetle/review" class="dotLink">
+                    <i id="prog6" class="fa fa-circle-o status"></i>
+                  </a>
+                </div>
+
+                <!--<div class="formNav" title="Next step">
+                  <i class="fa fa-angle-right fa-2x"></i>
+                </div>-->
+              </div>
+            </div>
+              
+            <div class="col-sm-8 col-sm-offset-2 form-page">
+              <div id="taxon_info">
+                <h3>Taxonomic info</h3>
+                <div id="taxon_wrapper">
+                  <div class="form-group" id="familyGroup">
+                    <label for="familyInput">Family</label>
+                    <input placeholder='Family (required)' type='text' size='35' name='family' data-provide='typeahead' class="form-control" id="familyInput"/>
+                    <input type='hidden' name='pbdb_family_no' value='' class="form-control"/>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="commonNameInput">Common name</label>
+                    <input placeholder='Common name' type='text' size='35' name='common_name' class="form-control" id="commonNameInput"/>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="genusInput">Genus</label>
+                    <input placeholder='Genus' type='text' size='35' name='genus' data-provide='typeahead' class="form-control" id="genusInput"/>
+                    <input type='hidden' name='pbdb_genus_no' value='' class="form-control"/>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="speciesInput">Species</label>
+                    <input placeholder='Species' type='text' size='35' name='species' data-provide='typeahead' class="form-control" id="speciesInput"/>
+                    <input type='hidden' name='pbdb_species_no' value='' class="form-control"/>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="authorInput">Author</label>
+                    <input placeholder='Author' type='text' size='35' name='author' class="form-control" id="authorInput"/>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="determinerInput">Determiner</label>
+                    <select class="large form-control" name='determiner' id="determinerInput">
+                      <option value="" selected>&nbsp;</option>
+                      <option value="na"> -- Not listed -- </option>
+                      {{#people}}
+                      <option value="{{id}}">{{name}}</option>
+                      {{/people}}
+                    </select>
+
+                    <input type='hidden' name='determiner_full'/>
+                  </div>
+                
+                  <span class="newField" id="newdeterminer">
+                    <div class="form-group">
+                      <label for="determinerFirstNameInput">First Name</label>
+                      <input type='text' size='20' name='new_determiner_first_name' placeholder='First Name' class="form-control" id="determinerFirstNameInput"/>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="determinerLastNameInput">Last Name</label>
+                      <input type='text' size='20' name='new_determiner_last_name' placeholder='Last Name' class="form-control" id="determinerLastNameInput"/>
+                    </div>
+                  </span>
+
+                  <span class="form-inline">
+                    <div class="form-group individuals">
+                      <label for="totalIndividuals">Total Individuals</label>
+                      <select class='totals form-control' name='number_total' id="totalIndividuals">
+                        <option value="0" selected>0</option>
+                      </select>
+                    </div>
+                    
+                    <div class="form-group individuals">
+                      <label for="maleIndividuals">Males</label>
+                      <select class='totals form-control' name='number_male' id="maleIndividuals">
+                        <option value="0" selected>0</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group individuals">
+                      <label for="femaleIndividuals">Females</label>
+                      <select class='totals form-control' name='number_female' id="femaleIndividuals">
+                        <option value="0" selected>0</option>
+                      </select>
+                    </div>
+                  </span>
+                </div>
+
+                <a class="btn btn-success next" href="/addBeetle/location">Next</a>
+              </div>
+            </div>
+
+            <div class="col-sm-8 col-sm-offset-2 form-page">
+              <div id="location">
+                <h3>Location</h3>
+                <div class="form-group">
+                  <label for="locationSelect">Location observed/collected*</label>
+                  <div class="btn btn-info locationSelect" data-toggle="#locationModal">Select location</div><br>
+                  <div id="selectedLocation">
+                    <i>Location selected: </i><span id="selectedLat"></span>, <span id="selectedLng"></span> <span class="edit locationSelect">edit</span>
+                  </div>
+                  <input type='hidden' name='lat'>
+                  <input type='hidden' name='lng'>
+                </div>
+                  
+                <div class="form-group">
+                  <label for="geomBasisInput">Resolution*</label>
+                  <select class='medium form-control' name='geom_basis' id="geomBasisInput">
+                    <option value="" selected></option>
+                    {{#geom_bases}}
+                    <option value="{{id}}">{{geom_basis}}</option>
+                    {{/geom_bases}}
+                  </select>
+                  <input type='hidden' name='geom_basis_full'/>
+                </div>
+
+                <textarea class='form-control' name='location_notes' placeholder='Add any notes about the collection location here' rows="3"></textarea>
+
+                <a class="btn btn-success previous" href="/addBeetle/taxon_info">Previous</a>
+                <a class="btn btn-success next" href="/addBeetle/collection_info">Next</a>
+              </div>
+            </div>
+
+            <div class="col-sm-8 col-sm-offset-2 form-page">
+              <div id="collection_info">
+                <h3>Collection details</h3>
+                <div id="collection_info_wrapper">
+
+                  <div class="form-group">
+                    <div class="input-daterange input-group" id="collectionDatepicker">
+                      <input type="text" class="input-md form-control" name="collection_date_start" placeholder="Date start (required)"/>
+                      <span class="input-group-addon">to</span>
+                      <input type="text" class="input-md form-control" name="collection_date_end" placeholder="Date end (optional)"/>
+                    </div>
+                  </div>
+                    
+
+                  <div class="form-group">
+                    <label for="collectorInput">Collector</label>
+                    <select class="medium form-control" name='collector'>
+                      <option value="" selected>&nbsp;</option>
+                      <option value="na"> -- Not listed -- </option>
+                      {{#people}}
+                      <option value="{{id}}">{{name}}</option>
+                      {{/people}}
+                    </select>
+                    <input type='hidden' name='collector_full'/>
+                  </div>
+
+                  <span class="newField" id="newcollector">
+                    <div class="form-group">
+                      <label for="collectorFirstNameInput">First Name</label>
+                      <input type='text' size='20' name='new_collector_first_name' placeholder='First Name' class="form-control" id="collectorFirstNameInput"/>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="collectorLastNameInput">Last Name</label>
+                      <input type='text' size='20' name='new_collector_last_name' placeholder='Last Name' class="form-control" id="collectorLastNameInput"/>
+                    </div>
+                  </span>
+
+                  <div class="form-group">
+                    <label for="collectionMethodInput">Collection Method</label>
+                    <select class='medium form-control' name='collection_method' id="collectionMethodInput">
+                      <option value="" selected>&nbsp;</option>
+                      <option value="na"> -- Not listed -- </option>
+                      {{#collection_methods}}
+                      <option value="{{id}}">{{collection_method}}</option>
+                      {{/collection_methods}}
+                    </select>
+                    <input type='hidden' name='collection_method_full'/>
+                  </div>
+
+                  <span class="newField" id="newcollection_method">
+                    <div class="form-group">
+                      <label for="newCollectionMethod">New Method</label>
+                      <input type='text' size='20' name='new_collection_method' class="form-control" id="newCollectionMethod"/>
+                    </div>
+                  </span>
+
+                  <div class="radio-inline">
+                    <label>
+                      <input type="radio" name="only_observed" value="0" checked>
+                      Collected
+                    </label>
+                  </div>
+                  <div class="radio-inline">
+                    <label>
+                      <input type="radio" name="only_observed" value="1">
+                      Observed
+                    </label>
+                  </div>
+                  
+
+
+                  <div class="form-group">
+                    <label for="baitInput">Bait Type</label>
+                    <select class='medium form-control' name='bait_type' id="baintInput">
+                      <option value="" selected>&nbsp;</option>
+                      <option value="na"> -- Not listed -- </option>
+                      {{#baits}}
+                      <option value="{{id}}">{{bait}}</option>
+                      {{/baits}}
+                    </select>
+                    <input type='hidden' name='bait_type_full'/>
+                  </div>
+
+                  <span class="newField" id="newbait_type">
+                    <div class="form-group">
+                      <label for="newBaitInput">New Bait</label>
+                      <input type='text' size='20' name='new_bait_type' class="form-control" id="newBaitInput"/>
+                    </div>
+                  </span>
+
+                  <div class="form-group">
+                    <label for="collectionMediaInput">Collection Media</label>
+                    <select class='medium form-control' name='collection_media' id="collectionMediaInput">
+                      <option value="" selected>&nbsp;</option>
+                      <option value="na"> -- Not listed -- </option>
+                      {{#collection_media}}
+                      <option value="{{id}}">{{collection_medium}}</option>
+                      {{/collection_media}}
+                    </select>
+                    <input type='hidden' name='collection_media_full'/>
+                  </div>
+                  
+                  <span class="newField" id="newcollection_media">
+                    <div class="form-group">
+                      <label for="newCollectionMedium">New Medium</label>
+                      <input type='text' size='20' name='new_collection_medium' class="form-control" id="newCollectionMedium"/>
+                    </div>
+                  </span>
+
+                  <div class="form-group">
+                    <label for="environmentInput">Environment</label>
+                    <select class='medium form-control' name='environment' id="environmentInput">
+                      <option value="" selected>&nbsp;</option>
+                      <option value="na"> -- Not listed -- </option>
+                      {{#environments}}
+                      <option value="{{id}}">{{environ}}</option>
+                      {{/environments}}
+                    </select>
+                    <input type='hidden' name='environment_full'/>
+                  </div>
+                  
+                  <span class="newField" id="newenvironment">
+                    <div class="form-group">
+                      <label for="newEnvironmentName">Name</label>
+                      <input type='text' size='45' name='new_environment' class="form-control" id="newEnvironmentName" />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="newEnvironmentType">Type</label>
+                      <input type='text' size='45' name='new_environment_type' placeholder='Type (ex: lacustrine, coastal, landscape, etc...)' class="form-control" id="newEnvironmentType"/>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="newEnvironmentClass">Class</label>
+                      <input type='text' size='45' name='new_environment_class' placeholder='Class (ex: aquatic, marine, paralic, etc...' class="form-control" id="newEnvironmentClass"/>
+                    </div>
+                  </span>
+                </div>
+
+                <a class="btn btn-success previous" href="/addBeetle/location">Previous</a>
+                <a class="btn btn-success next" href="/addBeetle/notes">Next</a>
+
+              </div>
+            </div>
+
+            <div class="col-sm-8 col-sm-offset-2 form-page">
+              <div id="notes">
+                <h3>Notes</h3>
+                <textarea class='form-control' name='notes' placeholder='Occurence notes...' rows="3"></textarea>
+
+                <a class="btn btn-success previous" href="/addBeetle/collection_info">Previous</a>
+                <a class="btn btn-success next" href="/addBeetle/photo">Next</a>
+              </div>
+            </div>
+
+            <div class="col-sm-8 col-sm-offset-2 form-page">
+              <div id="image">
+                <h3>Photo</h3>
+                <input type='file' name='filesToUpload' id='filesToUpload' style='display:none;' />
+
+                <div id="dropTarget">
+                  <i class="fa fa-plus fa-3x" id="uploadPlus"></i><br>
+                  <i id="uploadText">Click to add image</i>
+                </div>
+                <output id="selectedImages">
+                  <img exif="true" id="imageToUpload" class="imagesToUpload" src=""/>
+                  <span class="edit image"><i class="fa fa-ban"></i>  Remove</span>
+                </output>
+
+                <div class="form-group">
+                  <label for="photographerInput">Photographer</label>
+                  <select class="medium form-control" name='photographer' id="photographer">
+                    <option value="" selected>&nbsp;</option>
+                    <option value="na"> -- Not listed -- </option>
+                    {{#people}}
+                    <option value="{{id}}">{{name}}</option>
+                    {{/people}}
+                  </select>
+                  <input type='hidden' name='photographer_full'/>
+                </div>
+
+                <span class="newField" id="newphotographer">
+                  <div class="form-group">
+                    <label for="photographerFirstNameInput">First Name</label>
+                    <input type='text' size='12' name='new_photographer_first_name' placeholder='First Name' class="form-control" id="photographerFirstNameInput"/>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="photographerLastNameInput">Last Name</label>
+                    <input type='text' size='12' name='new_photographer_last_name' placeholder='Last Name' class="form-control" id="photographerLastNameInput"/>
+                  </div>
+                </span>
+
+                <textarea class='form-control' name='photo_description' placeholder='Photo description...' rows="3"></textarea>
+
+                <div class="form-group">
+                  <div class="input-group date" id="photoDatepicker">
+                    <input type="text" class="form-control" name="image_date" placeholder="Photo date"><span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                  </div>
+                </div>
+                  
+                <div class="form-group">
+                  <label for="selectedLocationPhoto">Photo location</label>
+                  <div class="btn btn-info locationSelectPhoto" id="photoLocationBtn">Select location</div><br>
+                  <div id="selectedLocationPhoto">
+                    <i>Location selected: </i><span id="selectedLatPhoto"></span>, <span id="selectedLngPhoto"></span> <span class="edit locationSelectPhoto">edit</span>
+                  </div>
+
+                  <input type='hidden' name='photolat'><input type='hidden' name='photolng'>
+                </div>
+                
+                <a class="btn btn-success previous" href="/addBeetle/notes">Previous</a>
+                <a class="btn btn-success next" href="/addBeetle/review">Next</a>
+
+              </div>
+            </div>
+
+            <div class="col-sm-8 col-sm-offset-2 form-page">
+              <div id="review">
+                <h3>Review data</h3>
+                <p><strong>Family:</strong>  <span id="family"></span></p>
+                <p><strong>Common name:</strong>  <span id="common_name"></span></p>
+                <p><strong>Genus:</strong>  <span id="genus"></span></p>
+                <p><strong>Species:</strong>  <span id="species"></span></p>
+                <p><strong>Author:</strong>  <span id="author"></span></p>
+                <p><strong>Determiner:</strong>  <span id="determiner_full"></span></p>
+                <p><strong>Total individuals:</strong>  <span id="number_total"></span></p>
+                <p><strong>Location observed:</strong>  <span id="lat"></span>, <span id="lng"></span></p>
+                <p><strong>Location resolution:</strong>  <span id="geom_basis_full"></span></p>
+                <p><strong>Location notes:</strong>  <span id="location_notes"></span></p>
+                <p><strong>Collection date:</strong>  <span id="collection_date_start"></span> <span id="collection_date_end"></span></p>
+                <p><strong>Collector:</strong>  <span id="collector_full"></span></p>
+                <p><strong>Collection method:</strong>  <span id="collection_method"></span></p>
+                <p><strong>Observed or collected:</strong>  <span id="only_observed"></span></p>
+                <p><strong>Bait type:</strong>  <span id="bait_type"></span></p>
+                <p><strong>Collection media:</strong>  <span id="collection_media"></span></p>
+                <p><strong>Environment:</strong>  <span id="environment"></span></p>
+                <p><strong>Notes:</strong>  <span id="notes"></span></p>
+                <p><strong>Photo:</strong>  <img id="photo" src=""/></p>
+                <p><strong>Photographer:</strong>  <span id="photographer_full"></span></p>
+                <p><strong>Photo description:</strong>  <span id="photo_description"></span></p>
+                <p><strong>Photo date:</strong>  <span id="image_date"></span></p>
+                <p><strong>Photo location:</strong>  <span id="photolat"></span>, <span id="photolng"></span></p>
+
+                <p>Click "previous" at the bottom to correct mistakes</p>
+                <a class="btn btn-success previous" href="/addBeetle/photo">Previous</a>
+                <button type="submit" value="Submit" class="btn btn-success" id="submit">Submit</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div><!--/.fluid-container-->
+
+
+    <div id="locationModal" class="modal modalImage fade" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body image">
+            <ul id="tabs" class="nav nav-tabs" style="display:none;">
+              <li class="active"><a href="#method" data-toggle="tab"><i class="icon-th"></i></a></li>
+              <li><a href="#address" data-toggle="tab"><i class="icon-th"></i></a></li>
+              <li><a href="#coordinates" data-toggle="tab"><i class="icon-picture"></i></a></li>
+              <li><a href="#map" data-toggle="tab"></a></li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="method">
+                <div class="row">
+                  <div class="col-sm-12" id="mapSelectHeader">
+                    <h3>Select an input method</h3>
+                  </div>
+                </div>
+                <div class="row" id="mapButtons">
+                  <div class="col-sm-3 locationMethod btn btn-primary" id="coordinates">Enter coordinates<i class="fa fa-globe fa-2x"></i></div>
+                  <div class="col-sm-3 locationMethod btn btn-primary" id="mapSelector">Select via map<i class="fa fa-map-marker fa-2x"></i></div>
+                  <div class="col-sm-3 locationMethod btn btn-primary" id="address">Address, city, or county<i class="fa fa-home fa-2x"></i></div>
+                </div>
+              </div>
+
+              <div class="tab-pane" id="mapPane">
+                <div class="modalBack"><i class="fa fa-arrow-left"></i> back</div>
+                <div id="map"></div>
+              </div>
+
+            </div>
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">Close &times;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/lib/jquery.v2.0.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="/lib/mustache.js"></script>
+    <!--<script src="/lib/leaflet.js"></script>-->
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+    <script src="http://maps.google.com/maps/api/js?v=3.2&sensor=false"></script>
+    <script src="/lib/google.js"></script>
+    <script src="/lib/typeahead.js/typeahead.bundle.min.js"></script>
+    <script src="/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/exif-js/binaryajax.js"></script>
+    <script src="/exif-js/exif.js"></script>
+    <script src="/js/upload.js"></script>
+
+  </body>
+</html>

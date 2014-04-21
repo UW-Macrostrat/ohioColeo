@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>The Ohio Coleopterist Society</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+    <link rel="stylesheet" href="/Leaflet.markercluster/dist/Markercluster.css" />
+    <link rel="stylesheet" href="/Leaflet.markercluster/dist/Markercluster.Default.css" />
+    <link href="/css/root.css" rel="stylesheet" type="text/css"/>
+    
+  </head>
+
+  <body>
+    {{>header}}
+
+    <div class="container">
+      <div class="row" id="filterRow">
+        <div class="col-sm-12">
+          <form class="form-inline">
+
+            <select id="countyFilter" class="form-control input-medium">
+              <option value="0" selected="selected">County...</option>
+              {{#counties}}
+              <option value="{{name}}">{{name}}</option>
+              {{/counties}}
+            </select>
+
+            <select id="collectorFilter" class="form-control input-medium">
+              <option value="0" selected="selected">Collector...</option>
+              {{#collectors}}
+              <option value="{{last_name}}">{{name}}</option>
+              {{/collectors}}
+            </select>
+
+          </form>
+        </div>
+      </div>
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#table" data-toggle="tab">Table <i class="fa fa-table"></i></a></li>
+        <li><a href="#mapPanel" data-toggle="tab">Map <i class="fa fa-map-marker"></i></a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active" id="table">
+          <div class="row">
+            <div class="col-sm-12">
+
+              <table class="table table-condensed" id="resultTable">
+                <thead>
+                  <tr>
+                    <th>More Info</th>
+                    <th>Taxon</th>
+                    <th>Specimens</th>
+                    <th>Collector</th>
+                  </tr>
+                </thead>
+                <tbody id="resultTbody"></tbody>
+              </table>
+
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane" id="mapPanel">
+          <div id="map"></div>
+        </div>
+      </div>
+        
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="/lib/mustache.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+    <script src="/js/validator.min.js"></script>
+    <script src="/js/validateLogin.js"></script>
+    <script src="/Leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <script src="/js/root.js"></script>
+  </body>
+</html>
