@@ -29,22 +29,22 @@
                 {{taxon_family}} {{#common_name}}<small> ({{common_name}}) </small>{{/common_name}}
               {{/taxon_genus}}
             {{/taxon_species}}
-          </h4>
+            </h4>
             <br>
 
             <strong>Collection date:</strong> {{collection_start_date}} {{#collection_end_date}} - {{collection_end_date}} {{/collection_end_date}}<br><br>
 
-            <strong>Collection method:</strong> {{collection_method}}<br><br>
+            {{#collection_method}}<strong>Collection method:</strong> {{collection_method}}<br><br>{{/collection_method}}
 
-            <strong>Bait:</strong> {{bait}} <br><br>
+            {{#bait}}<strong>Bait:</strong> {{bait}} <br><br>{{/bait}}
 
-            <strong>Medium:</strong> {{collection_medium}} <br><br>
+            {{#collection_medium}}<strong>Medium:</strong> {{collection_medium}} <br><br> {{/collection_medium}}
 
-            <strong>Location:</strong> {{geometry}} {{#geom_basis}} <small> ({{geom_basis}}) </small> {{/geom_basis}}<br><br>
+            {{#environ}}<strong>Environment:</strong> {{environ}} <br><br> {{/environ}}
 
-            <strong>Location notes:</strong> {{location_note}} <br><br>
+            <strong>Location:</strong> {{geometry}} {{#geom_basis}} <small> ({{geom_basis}}) </small> {{/geom_basis}} {{#location_note}}, {{location_note}} {{/location_note}}<br><br>
 
-            <strong>Other notes:</strong> {{note}} <br><br>
+            {{#note}}<strong>Other notes:</strong> {{note}} <br><br>{{/note}}
           </div>
           <div class="col-xs-6">
             {{#image}} 

@@ -1,4 +1,5 @@
 var pg = require('pg'),
+    async = require("async"),
     credentials = require('./credentials');
 
 // Create postgres connection object
@@ -141,9 +142,29 @@ exports.occurrences = function(req, res) {
       console.log(query);
       res.send(err);
     } else {
-      // Handy for debugging
-      result.query = query;
-      res.jsonp(result.rows);
+      if (result.rows.length > 0) {
+        var keys = Object.keys(result.rows[0]);
+
+        async.each(result.rows, function(row, callback) {
+          async.each(keys, function(key, callbackB) {
+            if (row[key] === "unknown") {
+              row[key] = "";
+            } else if (row[key] === "none") {
+              row[key] = "";
+            } else if (!row[key]) {
+              row[key] = "";
+            }
+            callbackB();
+          }, function(error) {
+            callback();
+          })
+        }, function(err) {
+          // Handy for debugging
+          result.query = query;
+          res.jsonp(result.rows);
+        });
+      }
+      
     }
       
   });
