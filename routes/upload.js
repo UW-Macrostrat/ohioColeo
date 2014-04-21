@@ -87,7 +87,7 @@ exports.uploadPost = function(req, res) {
         "taxa": function(callback) {
             // Determine which rank should be used for the taxon name and rank
             if (req.body.species) {
-                var taxon_name = req.body.species,
+                var taxon_name = req.body.genus + " " + req.body.species,
                     taxon_rank = 'species';
             } else if (req.body.genus) {
                 var taxon_name = req.body.genus,
@@ -198,7 +198,7 @@ exports.uploadPost = function(req, res) {
                 enterer_id = parseInt(req.session.user_id),
                 institution_id = parseInt(req.session.institution_id);
 
-            client.query("INSERT INTO neodb.occurrences(repository_id, note_id, method_id, bait_id, medium_id, collection_date_start, collection_date_end, only_observed, location_note, n_male_specimens, n_female_specimens, n_total_specimens, enterer_id, created_on, modified_on, taxon_id) VALUES($1, $2, $3, $4, $5, to_date($6, 'MM/DD/YYYY'), to_date($7, 'MM/DD/YYYY'), $8, $9, $10, $11, $12, $13, now(), now(), $14) RETURNING id", [institution_id, results.notes, results.collectionMethods, results.baitTypes, results.collectionMedia, collection_date_start, collection_date_end, only_observed, location_note, n_male_specimens, n_female_specimens, n_total_specimens, enterer_id, results.taxa], function(err, result) {
+            client.query("INSERT INTO neodb.occurrences(repository_id, note_id, method_id, bait_id, medium_id, collection_date_start, collection_date_end, only_observed, location_note, n_male_specimens, n_female_specimens, n_total_specimens, enterer_id, created_on, modified_on, taxon_id, geom_basis_id) VALUES($1, $2, $3, $4, $5, to_date($6, 'MM/DD/YYYY'), to_date($7, 'MM/DD/YYYY'), $8, $9, $10, $11, $12, $13, now(), now(), $14, $15) RETURNING id", [institution_id, results.notes, results.collectionMethods, results.baitTypes, results.collectionMedia, collection_date_start, collection_date_end, only_observed, location_note, n_male_specimens, n_female_specimens, n_total_specimens, enterer_id, results.taxa, parseInt(req.body.geom_basis)], function(err, result) {
                 if (err) {
                     res.send("Error uploading. Please try again. ", err);
                     console.log("Error inserting into table 'occurrences' - ", err);
@@ -562,9 +562,19 @@ exports.uploadPost = function(req, res) {
                 res.send("Error uploading. Please try again. ", err);
                 console.log("There was an issue - ", err);
             } else {
-                res.redirect("/");
+                res.redirect("/addBeetleSuccess");
             }
         });
     } // end step2
 
+}
+
+exports.success = function(req, res) {
+    res.render("uploadSuccess_short", {
+      loggedin: (req.session.user_id) ? true : false,
+      username: (req.session.user_id) ? req.session.name : "",
+      partials: {
+        header: "partials/navbar"
+      }
+    });
 }

@@ -18,6 +18,9 @@ setup
 uploads
 shapes
 
+public/images/full/*
+public/images/main/*
+public/images/thumbs/*
 routes/credentials.js
 
 .DS_Store

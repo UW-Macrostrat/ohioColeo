@@ -15,21 +15,63 @@
   <td colspan="5" class="noBoarder">
     <div class="panel-collapse collapse" id="collapse{{id}}" style="height:0px;">
       <div class="panel-body">
-        <p>
-          <strong>Collection date:</strong> {{collection_start_date}} {{#collection_end_date}} - {{collection_end_date}} {{/collection_end_date}}<br><br>
+        <div class="row">
+          <div class="col-xs-6">
+            <h4>
+            {{#taxon_species}}
+              {{taxon_family}} - <i>{{taxon_genus}} {{taxon_species}}</i> {{#common_name}}<small> ({{common_name}}) </small>{{/common_name}}
+            {{/taxon_species}}
+            {{^taxon_species}}
+              {{#taxon_genus}}
+                {{taxon_family}} - {{taxon_genus}} {{#common_name}}<small> ({{common_name}}) </small>{{/common_name}}
+              {{/taxon_genus}}
+              {{^taxon_genus}}
+                {{taxon_family}} {{#common_name}}<small> ({{common_name}}) </small>{{/common_name}}
+              {{/taxon_genus}}
+            {{/taxon_species}}
+          </h4>
+            <br>
 
-          <strong>Collection method:</strong> {{collection_method}}<br><br>
+            <strong>Collection date:</strong> {{collection_start_date}} {{#collection_end_date}} - {{collection_end_date}} {{/collection_end_date}}<br><br>
 
-          <strong>Bait:</strong> {{bait}} <br><br>
+            <strong>Collection method:</strong> {{collection_method}}<br><br>
 
-          <strong>Medium:</strong> {{collection_medium}} <br><br>
+            <strong>Bait:</strong> {{bait}} <br><br>
 
-          <strong>Location:</strong> {{geometry}} <br><br>
+            <strong>Medium:</strong> {{collection_medium}} <br><br>
 
-          <strong>Location notes:</strong> {{location_note}} <br><br>
+            <strong>Location:</strong> {{geometry}} {{#geom_basis}} <small> ({{geom_basis}}) </small> {{/geom_basis}}<br><br>
 
-          <strong>Other notes:</strong> {{note}} <br><br>
-        </p>
+            <strong>Location notes:</strong> {{location_note}} <br><br>
+
+            <strong>Other notes:</strong> {{note}} <br><br>
+          </div>
+          <div class="col-xs-6">
+            {{#image}} 
+            <img src="/images/main/{{image}}" style="height:300px;"/><br>
+            {{image_description}} {{#image_geometry}}, {{image_geometry}} {{/image_geometry}}
+            {{/image}}
+          </div>
+        </div>
+ 
+          <!--
+            common_name
+            family
+            author
+            determiner
+            individuals
+            location resolution
+            collected or observed
+            environment
+
+            photo!
+            photographer
+            photo notes
+            photo date
+            photo location
+
+        -->
+
       </div>
     </div>
   </td>

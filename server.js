@@ -41,6 +41,7 @@ app.get('/', standard.root);
 app.get('/addBeetle', checkAuth, upload.upload);
 app.get('/addBeetle/:form', checkAuth, upload.upload);
 app.post('/addBeetle', checkAuth, upload.uploadPost);
+app.get('/addBeetleSuccess', checkAuth, upload.success);
 
 // Log in and out
 app.post('/verify', login.verify); // Boolean check of email and password
