@@ -2,249 +2,34 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>The Ohio Coleopterists</title>
+    <title>The Ohio Coleopterist Society</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <meta name="author" content="John J Czaplewski"/>
-
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css" rel="stylesheet"/>
-    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet"/>
-    <!--<link href="/lib/leaflet.css" rel="stylesheet" />-->
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6/leaflet.css" />
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
-    <style>
-    #map {
-      height:200px;
-    }
-    #photoMap {
-      height:200px;
-    }
-    </style>
-
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link href="/css/root.css" rel="stylesheet" type="text/css"/>
+    
   </head>
 
   <body>
+    {{>header}}
 
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <div class="span12">
-          <h3>Submission successful!</h3>
-          {{#info}}
-          <table class="table table-condensed table-striped">
-            <tr>
-              <th>Taxon:</th>
-              <td>
-                {{#genus}}
-                  {{#species}}
-                    <i>{{genus}} {{species}}</i>
-                  {{/species}}
-                  {{^species}}
-                    <i>{{genus}}</i>
-                  {{/species}}
-                {{/genus}}
-                {{^genus}}
-                  {{family}}
-                {{/genus}}
-              </td>
-            </tr>
-
-            <tr>
-              <th>Collection date:</th>
-              <td>{{daystart}} {{monthstart}} {{yearstart}} {{#dayend}} - {{dayend}} {{monthend}} {{yearend}}{{/dayend}}</td>
-            </tr>
-
-            {{#collector}}
-            <tr>
-              <th>Collector:</th>
-              <td>{{collector_full}}</td>
-            </tr>
-            {{/collector}}
-            {{#new_collector_first_name}}
-            <tr>
-              <th>Collector:</th>
-              <td>{{new_collector_first_name}} {{new_collector_last_name}}</td>
-            </tr>
-            {{/new_collector_first_name}}
-
-            {{#collection_method}}
-            <tr>
-              <th>Collection method:</th>
-              <td>{{collection_method_full}}</td>
-            </tr>
-            {{/collection_method}}
-            {{#new_collection_method}}
-            <tr>
-              <th>Collection method:</th>
-              <td>{{new_collection_method}}</td>
-            </tr>
-            {{/new_collection_method}}
-
-            {{#only_observed}}
-            <tr>
-              <th>Only observed:</th>
-              <td>True</td>
-            </tr>
-            {{/only_observed}}
-
-            {{#bait_type}}
-            <tr>
-              <th>Bait type:</th>
-              <td>{{bait_type_full}}</td>
-            </tr>
-            {{/bait_type}}
-            {{#new_bait_type}}
-            <tr>
-              <th>Bait type:</th>
-              <td>{{new_bait_type}}</td>
-            </tr>
-            {{/new_bait_type}}
-
-            {{#collection_medium}}
-            <tr>
-              <th>Collection medium:</th>
-              <td>{{collection_medium_full}}</td>
-            </tr>
-            {{/collection_medium}}
-            {{#new_collection_medium}}
-            <tr>
-              <th>Collection medium:</th>
-              <td>{{new_collection_medium}}</td>
-            </tr>
-            {{/new_collection_medium}}
-
-            {{#environment}}
-            <tr>
-              <th>Collection environment:</th>
-              <td>{{environment_full}}</td>
-            </tr>
-            {{/environment}}
-            {{#new_environment}}
-            <tr>
-              <th>Collection environment:</th>
-              <td>{{new_environment}}</td>
-            </tr>
-            {{/new_environment}}
-
-            <tr>
-              <th>Totals:</th>
-              <td>Male specimens - {{number_male}}<br>Female specimens - {{number_female}}<br>Total specimens - {{number_total}}</td>
-            </tr>
-
-            {{#notes}}
-            <tr>
-              <th>Notes:</th>
-              <td>{{notes}}</td>
-            </tr>
-            {{/notes}}
-
-            {{#lat}}
-            <tr>
-              <th>Location:</th>
-              <td><div id="map"></div></td>
-            </tr>
-            {{/lat}}
-
-            {{#location_notes}}
-            <tr>
-              <th>Location notes:</th>
-              <td>{{location_notes}}</td>
-            </tr>
-            {{/location_notes}}
-
-            {{#image_url}}
-            <tr>
-              <th>Image:</th>
-              <td><img src="{{image_url}}"/></td>
-            </tr>
-            {{/image_url}}
-
-            {{#photographer}}
-            <tr>
-              <th>Photographer:</th>
-              <td>{{photographer_full}}</td>
-            </tr>
-            {{/photographer}}
-            {{#new_photographer_first_name}}
-            <tr>
-              <th>Photographer:</th>
-              <td>{{new_photographer_first_name}} {{new_photographer_last_name}}</td>
-            </tr>
-            {{/new_photographer_first_name}}
-
-            {{#photo_description}}
-            <tr>
-              <th>Photo description:</th>
-              <td>{{photo_description}}</td>
-            </tr>
-            {{/photo_description}}
-
-            {{#photoday}}
-            <tr>
-              <th>Photo date:</th>
-              <td>{{photoday}} {{photomonth}} {{photoyear}}</td>
-            </tr>
-            {{/photoday}}
-
-            {{#photolat}}
-            <tr>
-              <th>Photo location:</th>
-              <td><div id="photoMap"></div></td>
-            </tr>
-            {{/photolat}}
-          </table>
-          {{/info}}
-          <a class="btn" href="/beetles/upload">Add another photo</a>
-          <a href="/beetles/stats">See upload stats</a>
+    <div class="container">
+      <div class="row" id="filterRow">
+        <div class="col-sm-12" style="text-align:center;">
+          <h3>Upload successful!</h3>
+          <p>Redirecting back to main page...</p>
         </div>
       </div>
-    </div><!--/.fluid-container-->
+    </div>
 
-    <script src="/beetles/lib/jquery.v2.0.min.js"></script>
-    <script src="/beetles/lib/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/beetles/lib/mustache.js"></script>
-    <!--<script src="/lib/leaflet.js"></script>-->
-    <script src="http://cdn.leafletjs.com/leaflet-0.6/leaflet.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
     <script type="text/javascript">
-      $(document).ready(function() {
-        var ll = getLoc(),
-            photoll = getPhotoLoc();
-
-        if (typeof ll[0] !== 'undefined') {
-          initMap('map', ll);
-        }
-        if (typeof photoll !== 'undefined') {
-          initMap('photoMap', photoll);
-        }
-      });
-
-      function getLoc() {
-        var latlng = [{{#info}}{{lat}},{{lng}}{{/info}}];
-        return latlng;
-      }
-
-      function getPhotoLoc() {
-        var latlng = [{{#info}}{{photolat}},{{photolng}}{{/info}}];
-        return latlng;
-      }
-
-      function initMap(div, loc) {
-        var map = new L.Map(div, {
-          center: new L.LatLng(40.2, -82.9),
-          zoom: 12,
-          zoomControl: false,
-          dragging:false,
-          scrollWheelZoom: false,
-          doubleClickZoom: false
-        }),
-
-          osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'}).addTo(map),
-
-          marker = new L.Marker(loc).addTo(map);
-
-        map.panTo(loc);
-      }
+      setTimeout(function() {
+        localStorage.setItem("formData", "");
+        window.location.href = "/";
+      }, 3500);
 
     </script>
-
   </body>
 </html>

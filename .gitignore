@@ -13,10 +13,13 @@ results
 
 npm-debug.log
 node_modules
+public/bower_components
 
-setup
+routes/credentials.js
+
 uploads
 shapes
+setup
 
 public/images/full/*
 public/images/main/*

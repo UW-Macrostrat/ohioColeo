@@ -36,6 +36,7 @@ function checkAuth(req, res, next) {
 
 // Simple page routes
 app.get('/', standard.root);
+app.get('/occurrences', standard.occurrences);
 
 // Upload form routes
 app.get('/addBeetle', checkAuth, upload.upload);
@@ -48,10 +49,11 @@ app.post('/verify', login.verify); // Boolean check of email and password
 app.post('/login', login.login);
 app.get('/logout', login.logout);
 
-// Data
+// Get data
 app.get('/api/map', api.map);
 app.get('/api/occurrences', api.occurrences);
-app.get('/api/taxa', api.taxa);
+app.get('/api/autocomplete', api.autocomplete);
+app.get('/api/autocomplete/:type', api.autocomplete);
 
 
 // Handle 404

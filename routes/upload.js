@@ -50,7 +50,7 @@ exports.upload = function(req, res) {
         },
     },
     function(error, results) {
-        res.render("upload_multi", {
+        res.render("upload", {
             loggedin: (req.session.user_id) ? true : false,
             username: (req.session.user_id) ? req.session.name : "",
             people: results.people,
@@ -570,7 +570,7 @@ exports.uploadPost = function(req, res) {
 }
 
 exports.success = function(req, res) {
-    res.render("uploadSuccess_short", {
+    res.render("uploadSuccess", {
       loggedin: (req.session.user_id) ? true : false,
       username: (req.session.user_id) ? req.session.name : "",
       partials: {

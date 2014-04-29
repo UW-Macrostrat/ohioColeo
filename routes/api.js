@@ -1,6 +1,7 @@
 var pg = require('pg'),
     async = require("async"),
-    credentials = require('./credentials');
+    credentials = require('./credentials'),
+    postgeo = require("postgeo");
 
 // Create postgres connection object
 var connString = "postgres://" + credentials.user + "@" + credentials.host + ":" + credentials.port + "/" + credentials.database,
@@ -13,38 +14,37 @@ client.connect(function(error, success) {
   }
 });
 
-// Helpers via http://stackoverflow.com/questions/12766289/format-geojson-from-postgis
-function FeatureCollection(){
-  this.type = 'FeatureCollection';
-  this.features = new Array();
-}
-
-function Feature(){
-  this.type = 'Feature';
-  this.geometry = new Object;
-  this.properties = new Object;
-} 
+postgeo.connect(connString);
 
 // Fetches the map data and returns a valid GeoJSON
 exports.map = function(req, res) {
-  client.query("SELECT name, taxa, ST_AsGeoJSON(geom) as geometry FROM ohio_summary", function(err, result) {
-    if (err) {
-      console.log("Error retrieving map data - ", err);
-    } else {
-
-      // Build a GeoJSON and return it
-      var featureCollection = new FeatureCollection();
-
-      for (var i=0; i < result.rows.length; i++) {
-        var feature = new Feature();
-        feature.geometry = JSON.parse(result.rows[i].geometry);
-        feature.properties = {"name": result.rows[i].name, "occurrences": result.rows[i].taxa};
-        featureCollection.features.push(feature);
-      }
-
-      res.jsonp(featureCollection);
-    }
-  });
+  if (req.query.taxon) {
+    postgeo.query("\
+      SELECT ohio.fips, ohio.geometry, ohio.name, t.count FROM \
+        (SELECT ohio.fips, count (o.fips) as count, ST_AsGeoJSON(ohio.geom) AS geometry, ohio.name \
+         from neodb.occurrences o \
+         FULL OUTER JOIN neodb.ohio ohio ON o.fips = ohio.fips \
+         GROUP BY ohio.fips, ohio.geom, ohio.name \
+        ) ohio \
+         FULL OUTER JOIN \
+          (SELECT o.fips, count (o.occFips) as count \
+           FROM (SELECT ohio.fips, o.fips AS occFips, o.taxon_id \
+           from neodb.occurrences o \
+           FULL OUTER JOIN neodb.ohio ohio ON o.fips = ohio.fips \
+           GROUP BY ohio.fips, o.fips, o.taxon_id \
+          ) o \
+      FULL OUTER JOIN \
+      (SELECT id FROM neodb.taxa WHERE taxon_name = '" + req.query.taxon + "') t ON o.taxon_id = t.id \
+      GROUP BY o.fips) t \
+      ON ohio.fips = t.fips", "geojson", function(data) {
+        res.json(data);
+    });
+  } else {
+    postgeo.query("SELECT ohio.fips, count (o.fips) as count, ST_AsGeoJSON(ohio.geom) AS geometry, ohio.name from neodb.occurrences o FULL OUTER JOIN neodb.ohio ohio ON o.fips = ohio.fips GROUP BY ohio.fips, ohio.geom, ohio.name", "geojson", function(data) {
+      res.json(data);
+    });
+  }
+    
 }
 
 exports.occurrences = function(req, res) {
@@ -161,7 +161,7 @@ exports.occurrences = function(req, res) {
         }, function(err) {
           // Handy for debugging
           result.query = query;
-          res.jsonp(result.rows);
+          res.json(result.rows);
         });
       }
       
@@ -170,11 +170,21 @@ exports.occurrences = function(req, res) {
   });
 }
 
-// Distinct taxa for the taxa typeahead
-exports.taxa = function(req, res) {
-  var query = "SELECT DISTINCT taxon_name FROM neodb.taxa ORDER BY taxon_name ASC;"
+// Fuel for the autocomplete search
+exports.autocomplete = function(req, res) {
+  req.params.type = req.params.type.replace(".json", "");
+  var options = {
+    "taxa": "SELECT DISTINCT taxon_name AS name FROM neodb.taxa ORDER BY taxon_name ASC",
+    "collectors": "SELECT CONCAT(first_name, ' ', last_name) AS name, last_name FROM neodb.people ORDER BY last_name ASC",
+    //"collectors": "SELECT CONCAT(first_name, ' ', last_name) AS name, last_name FROM neodb.people_roles pr LEFT OUTER JOIN neodb.people p ON pr.person_id = p.id WHERE role_id = 5  ORDER BY last_name ASC",
+    "counties": "SELECT DISTINCT name FROM neodb.ohio"
+  }
 
-  client.query(query, function(err, result) {
-    res.jsonp(result.rows);
-  });
+  if (!(req.params.type in options)) {
+    res.json({"error": "you must supply a valid option", "options": ["taxa", "collectors", "county"]});
+  } else {
+    client.query(options[req.params.type], function(err, result) {
+      res.json(result.rows);
+    });
+  }
 }

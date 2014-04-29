@@ -982,7 +982,7 @@ function validate() {
     return false;
   }
   else {
-    localStorage.setItem("formData", "");
+    //localStorage.setItem("formData", "");
     // Enable the disabled
     var disabled = $("#uploadForm").find(':input:disabled').removeAttr('disabled');
 

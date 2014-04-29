@@ -78,6 +78,16 @@ i:hover {
   color:#fff;
 }
 
+#searchMenu {
+  padding: 14px 30px 6px 30px;
+}
+
+#taxon {
+  background-color: #444;
+  border: 1px solid #444;
+  color: #f5f5f5;
+}
+
 .help-inline {
   color:#a94442;
 }

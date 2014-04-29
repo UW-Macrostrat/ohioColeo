@@ -27,12 +27,24 @@ exports.root = function(req, res) {
     res.render('index', {
       loggedin: (req.session.user_id) ? true : false,
       username: (req.session.user_id) ? req.session.name : "",
-      collectors:collectors,
-      counties: counties,
+      collectors: collectors,
       partials: {
         header: "partials/navbar"
       }
     });
   });
+}
 
+exports.occurrences = function(req, res) {
+  /*
+     Can accept req.query.id || req.query.county
+     Either way, same template is rendered and client handles the request for data
+  */
+  res.render('occurrences', {
+    loggedin: (req.session.user_id) ? true : false,
+    username: (req.session.user_id) ? req.session.name : "",
+    partials: {
+      header: "partials/navbar"
+    }
+  });
 }

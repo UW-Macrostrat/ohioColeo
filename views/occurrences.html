@@ -7,17 +7,11 @@
     <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bower_components/fontawesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="/bower_components/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="/bower_components/leaflet.markerclusterer/dist/Markercluster.css" />
+    <link rel="stylesheet" href="/bower_components/leaflet.markerclusterer/dist/Markercluster.Default.css" />
+
     <link rel="stylesheet" href="/css/common.css"/>
-    <link rel="stylesheet" href="/css/root.css"/>
-    <style>
-    .info {
-      background-color: #fff;
-      text-align: center;
-      padding: 7px 15px 15px 15px;
-      border-radius: 3px;
-    }
-    
-    </style>
+    <link rel="stylesheet"href="/css/root.css"/>
     
   </head>
 
@@ -27,8 +21,8 @@
     <div class="container-fluid">
       <div class="row" id="filterRow">
         <div class="col-sm-12">
+          <form class="form-inline">
 
-        <!--  <form class="form-inline">
 
             <select id="collectorFilter" class="form-control input-medium">
               <option value="0" selected="selected">Collector...</option>
@@ -37,22 +31,40 @@
               {{/collectors}}
             </select>
 
-          </form>-->
-          <div id="map"></div>
+          </form>
         </div>
       </div>
 
-      
+      <div class="row">
+        <div class="col-sm-8">
+          <table class="table table-condensed" id="resultTable">
+            <thead>
+              <tr>
+                <th>More Info</th>
+                <th>Taxon</th>
+                <th>Specimens</th>
+                <th>Collector</th>
+              </tr>
+            </thead>
+            <tbody id="resultTbody"></tbody>
+          </table>
+        </div>
+        <div class="col-sm-4">
+          <div id="map"></div>
+        </div>
+      </div>
         
     </div>
 
     <script src="/bower_components/jquery/dist/jquery.min.js"></script>
     <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="/bower_components/typeahead.js/dist/typeahead.bundle.min.js"></script>
     <script src="/bower_components/mustache/mustache.js"></script>
     <script src="/bower_components/leaflet/dist/leaflet.js"></script>
+    <script src="/bower_components/typeahead.js/dist/typeahead.bundle.min.js"></script>
+    <script src="/bower_components/leaflet.markerclusterer/dist/leaflet.markercluster.js"></script>
     <script src="/bower_components/validator-js/validator.min.js"></script>
+
     <script src="/js/common.js"></script>
-    <script src="/js/root_revised.js"></script>
+    <script src="/js/occurrences.js"></script>
   </body>
 </html>
