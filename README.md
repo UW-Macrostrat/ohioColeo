@@ -6,7 +6,7 @@
 - Bower (````npm install -g bower````)
 -  Jake (````npm install -g jake````)
 
-### Getting started
+### Getting started:
 1. Clone this repo
 2. ````npm install````
 3. ````bower install````

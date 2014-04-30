@@ -353,32 +353,32 @@ var uploadForm = (function() {
           }
         });
       } else {
-        var llFormat = $("[name=llType]").val();
+        var llFormat = $("input[name=llType]:checked").val();
 
         if (llFormat === "dd") {
-          var lat = parseFloat($('#lat').val()),
-              lng = parseFloat($('#lng').val());
+          var lat = parseFloat($('input#lat').val()),
+              lng = parseFloat($('input#lng').val());
 
         } else if (llFormat === "dm") {
           // convert from DD MM.mmm here
-          var degreesLat = parseFloat($("#dm_lat_deg").val()),
-              minutesLat = parseFloat($("#dm_lat_min").val()),
+          var degreesLat = parseFloat($("input#dm_lat_deg").val()),
+              minutesLat = parseFloat($("input#dm_lat_min").val()),
 
-              degreesLng = parseFloat($("#dm_lng_deg").val()),
-              minutesLng = parseFloat($("#dm_lng_min").val());
+              degreesLng = parseFloat($("input#dm_lng_deg").val()),
+              minutesLng = parseFloat($("input#dm_lng_min").val());
 
           var lat = degreesLat + (minutesLat/60),
               lng = degreesLng + (minutesLng/60);
 
         } else {
           // convert from DMS here
-          var degreesLat = parseFloat($("#dms_lat_deg").val()),
-              minutesLat = parseFloat($("#dms_lat_min").val()),
-              secondsLat = parseFloat($("#dms_lat_sec").val()),
+          var degreesLat = parseFloat($("input#dms_lat_deg").val()),
+              minutesLat = parseFloat($("input#dms_lat_min").val()),
+              secondsLat = parseFloat($("input#dms_lat_sec").val()),
 
-              degreesLng = parseFloat($("#dms_lng_deg").val()),
-              minutesLng = parseFloat($("#dms_lng_min").val()),
-              secondsLng = parseFloat($("#dms_lng_sec").val());
+              degreesLng = parseFloat($("input#dms_lng_deg").val()),
+              minutesLng = parseFloat($("input#dms_lng_min").val()),
+              secondsLng = parseFloat($("input#dms_lng_sec").val());
 
           var lat = degreesLat + (minutesLat/60) + (secondsLat/3600),
               lng = degreesLng + (minutesLng/60) + (secondsLng/3600);
@@ -387,7 +387,7 @@ var uploadForm = (function() {
 
         if (Object.keys(map._layers).length < 2) {
 
-          var marker = new L.Marker([lat, lng], {
+          marker = new L.Marker([lat, lng], {
             draggable: true
           }).addTo(map);
 
