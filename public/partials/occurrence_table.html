@@ -7,8 +7,8 @@
       </div>
     </div>
   </td>
+  <td>{{taxon_family}}</td>
   <td>{{taxon_name}}</td>
-  <td>{{n_total_specimens}}</td>
   <td>{{collector}}</td>
 </tr>
 <tr>
@@ -35,6 +35,8 @@
             <strong>Collection date:</strong> {{collection_start_date}} {{#collection_end_date}} - {{collection_end_date}} {{/collection_end_date}}<br><br>
 
             {{#collection_method}}<strong>Collection method:</strong> {{collection_method}}<br><br>{{/collection_method}}
+
+            {{#n_total_specimens}}<strong>Total specimens:</strong> {{n_total_specimens}}<br><br>{{/n_total_specimens}}
 
             {{#bait}}<strong>Bait:</strong> {{bait}} <br><br>{{/bait}}
 
