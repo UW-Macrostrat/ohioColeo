@@ -30,25 +30,30 @@ var occPage = (function() {
       dataType: 'json', 
       async: false,
       success: function(result) {
-        var data = {};
-        data.occurrences = result.slice(0);
-        updateMap(data.occurrences);
-        if (tablePartial.length < 1) {
-          $.ajax({
-            type: 'GET',
-            url: '/partials/occurrence_table.html',
-            async: false,
-            success: function(partial) {
-              tablePartial = partial;
-              var output = Mustache.render(partial, data);
+        if (result.length > 0 && result[0].id !== "") {
+          var data = {};
+          data.occurrences = result.slice(0);
+          updateMap(data.occurrences);
+          if (tablePartial.length < 1) {
+            $.ajax({
+              type: 'GET',
+              url: '/partials/occurrence_table.html',
+              async: false,
+              success: function(partial) {
+                tablePartial = partial;
+                var output = Mustache.render(partial, data);
 
-              $("#resultTbody").html(output);
-            }
-          });
+                $("#resultTbody").html(output);
+              }
+            });
+          } else {
+            var output = Mustache.render(tablePartial, data);
+            $("#resultTbody").html(output);
+          }
         } else {
-          var output = Mustache.render(tablePartial, data);
-          $("#resultTbody").html(output);
+          $("#resultTable").html("<h3>No results found</h3>");
         }
+  
           
       }
     });

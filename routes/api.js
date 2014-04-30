@@ -172,6 +172,8 @@ exports.occurrences = function(req, res) {
           result.query = query;
           res.json(result.rows);
         });
+      } else {
+        res.json([]);
       }
       
     }

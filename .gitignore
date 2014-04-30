@@ -17,7 +17,7 @@ public/bower_components
 
 routes/credentials.js
 
-uploads
+uploads/*
 shapes
 setup
 
