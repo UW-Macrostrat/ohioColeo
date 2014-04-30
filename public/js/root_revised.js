@@ -81,6 +81,7 @@ var indexPage = (function() {
       ]
     });
 
+
     // add an OpenStreetMap tile layer
     L.tileLayer(  
       'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png', {
@@ -101,6 +102,18 @@ var indexPage = (function() {
     }
 
     info.addTo(map);
+
+    var clusterLayer = new L.MarkerClusterGroup({ showCoverageOnHover: false });
+
+    map.on("zoomend", function() {
+      if (map.getZoom() === 9) {
+        map.addLayer(clusterLayer);
+      } else {
+        if (map.hasLayer(clusterLayer)) {
+          map.removeLayer(clusterLayer);
+        }
+      }
+    });
 
 
     $.getJSON("/api/map", function(data) {
@@ -160,6 +173,18 @@ var indexPage = (function() {
           
         }
       }).addTo(map);
+    });
+    
+    $.getJSON("/api/occurrences", function(data) {
+
+      data.forEach(function(d) {
+        var geometry = d.geometry.split(" ");
+        var marker = new L.Marker([parseFloat(geometry[0]), parseFloat(geometry[1])])
+                          .bindPopup("<strong>Taxon:</strong> " + d.taxon_name + "<br><strong>Specimens: </strong>" + d.n_total_specimens + "<br><strong>Collector: </strong>" + d.collector);
+        clusterLayer.addLayer(marker);
+      });
+
+      //clusterLayer.addTo(map);
     });
   }
 

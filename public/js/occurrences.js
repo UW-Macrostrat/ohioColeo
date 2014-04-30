@@ -9,6 +9,15 @@ var occPage = (function() {
     return decodeURI(window.location.search.replace(new RegExp("^(?:.*[&\\?]" + encodeURI(variable).replace(/[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"));
   }
 
+  function choropleth(value) {
+    return value > 20 ? "#294E2F" :
+           value > 15 ? "#3B6C44" :
+           value > 10 ? "#4E8D59" :
+           value > 5  ? "#63AF70" :
+           value > 0  ? "#78D287" :
+                        "#bbb";
+  }
+
   function getData() {
     var county = getSearchVar("county"),
         occurrence = getSearchVar("taxon_name"),
@@ -84,7 +93,55 @@ var occPage = (function() {
       map.invalidateSize();
     });
 
+    if (getSearchVar("county").length > 2) {
+      $.getJSON("/api/map/bounds?county=" + getSearchVar("county"), function(data) {
+        var bounds = JSON.parse(data[0].bounds);
+
+        map.fitBounds([
+          [bounds.coordinates[0][0][1], bounds.coordinates[0][0][0]],
+          [bounds.coordinates[0][2][1], bounds.coordinates[0][2][0]]
+        ]);
+      });
+    }
+
     clusterLayer.addTo(map);
+
+    if (getSearchVar("taxon_name").length > 2) {
+      var url = "/api/map?taxon=" + getSearchVar("taxon_name");
+    } else {
+      var url = "/api/map";
+    }
+    $.getJSON(url, function(data) {
+      var counties = L.geoJson(data, {
+        style: function(feature) {
+          return {
+            "color": "#777",
+            "weight": "1",
+            "opacity": "1",
+            "fillOpacity": 0.5,
+            "fillColor": choropleth(feature.properties.count)
+          }
+        },
+        onEachFeature: function(feature, layer) {
+          layer.on({
+            mouseover: function(e) {
+              e.target.setStyle({
+                "color": "#333",
+                "weight": "1.5"
+              });
+
+              e.target.bringToFront();
+
+            },
+            mouseout: function(e) {
+              counties.resetStyle(e.target);
+            }
+          });
+
+          
+        }
+      }).addTo(map);
+    });
 
     getData();
   }

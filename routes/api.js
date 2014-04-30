@@ -33,7 +33,7 @@ exports.map = function(req, res) {
            FULL OUTER JOIN neodb.ohio ohio ON o.fips = ohio.fips \
            GROUP BY ohio.fips, o.fips, o.taxon_id \
           ) o \
-      FULL OUTER JOIN \
+      INNER JOIN \
       (SELECT id FROM neodb.taxa WHERE taxon_name = '" + req.query.taxon + "') t ON o.taxon_id = t.id \
       GROUP BY o.fips) t \
       ON ohio.fips = t.fips", "geojson", function(data) {
@@ -44,7 +44,16 @@ exports.map = function(req, res) {
       res.json(data);
     });
   }
-    
+}
+
+exports.bounds = function(req, res) {
+  if (req.query.county) {
+    client.query("SELECT ST_AsGeoJSON(ST_Extent(geom)) AS bounds FROM neodb.ohio WHERE name = $1", [req.query.county], function(error, data) {
+      res.json(data.rows);
+    });
+  } else {
+    res.json({"error": "Please supply a county name"});
+  }
 }
 
 exports.occurrences = function(req, res) {

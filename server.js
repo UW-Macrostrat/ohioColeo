@@ -51,6 +51,7 @@ app.get('/logout', login.logout);
 
 // Get data
 app.get('/api/map', api.map);
+app.get('/api/map/bounds', api.bounds);
 app.get('/api/occurrences', api.occurrences);
 app.get('/api/autocomplete', api.autocomplete);
 app.get('/api/autocomplete/:type', api.autocomplete);
