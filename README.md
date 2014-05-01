@@ -2,6 +2,8 @@
 
 ### Dependencies:
 
+- PostgreSQL 9.3
+- PostGIS 2.x
 - Node/NPM (````brew install node````)
 - Bower (````npm install -g bower````)
 -  Jake (````npm install -g jake````)
