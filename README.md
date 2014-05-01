@@ -8,12 +8,7 @@
 
 ### Getting started:
 1. Clone this repo
-2. ````npm install````
-3. ````bower install````
-4. ````cd public/bower_components/leaflet````
-5. ````npm install````
-6. ````jake````
-7.  ````cd```` back to project root
-8.  ````cd routes````
-9.  ````mv credentials.js.example credentials.js````
-10.  Edit ````credentials.js```` with your credentials
+2. Edit the database configuration in ````setup.sh````
+2. ````./setup.sh````
+9.  Rename ````routes/credentials.js.example```` to ````routes/credentials.js````
+10.  Edit ````routes/credentials.js```` with your credentials

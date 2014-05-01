@@ -19,7 +19,9 @@ routes/credentials.js
 
 uploads/*
 shapes
-setup
+setup/db_setup.txt
+setup/reference.sql
+setup/remove_tests.sql
 
 public/images/full/*
 public/images/main/*
