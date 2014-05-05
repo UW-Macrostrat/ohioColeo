@@ -898,7 +898,9 @@ function review() {
         $("span#" + d).html(formData[d]).parent().show();
       }
     } else {
-      $("span#" + d).parent().hide();
+      if (d !== "collection_date_end") {
+        $("span#" + d).parent().hide();
+      }
     }
   });
 
