@@ -367,8 +367,11 @@ var uploadForm = (function() {
               degreesLng = parseFloat($("input#dm_lng_deg").val()),
               minutesLng = parseFloat($("input#dm_lng_min").val());
 
-          var lat = degreesLat + (minutesLat/60),
-              lng = degreesLng + (minutesLng/60);
+          var latDirection = (degreesLat < 0 ? -1 : 1),
+              lngDirection = (degreesLng < 0 ? -1 : 1);
+
+          var lat = latDirection * (Math.abs(degreesLat) + (minutesLat/60)),
+              lng = lngDirection * (Math.abs(degreesLng) + (minutesLng/60));
 
         } else {
           // convert from DMS here
@@ -380,8 +383,11 @@ var uploadForm = (function() {
               minutesLng = parseFloat($("input#dms_lng_min").val()),
               secondsLng = parseFloat($("input#dms_lng_sec").val());
 
-          var lat = degreesLat + (minutesLat/60) + (secondsLat/3600),
-              lng = degreesLng + (minutesLng/60) + (secondsLng/3600);
+          var latDirection = (degreesLat < 0 ? -1 : 1),
+              lngDirection = (degreesLng < 0 ? -1 : 1);
+
+          var lat = latDirection * (Math.abs(degreesLat) + (minutesLat/60) + (secondsLat/3600)),
+              lng = lngDirection * (Math.abs(degreesLng) + (minutesLng/60) + (secondsLng/3600));
 
         }
 
