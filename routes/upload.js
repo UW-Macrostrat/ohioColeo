@@ -202,6 +202,7 @@ exports.uploadPost = function(req, res) {
                 if (err) {
                     res.send("Error uploading. Please try again. ", err);
                     console.log("Error inserting into table 'occurrences' - ", err);
+                    console.log(result.command);
                 } else {
                     var occurrence_id = result.rows[0].id;
 
