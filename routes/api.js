@@ -169,7 +169,7 @@ exports.occurrences = function(req, res) {
     }
   } 
 
-  query += " ORDER BY o.collection_date_start DESC";
+  query += " ORDER BY o.created_on DESC";
 
   client.query(query, params, function(err, result) {
     if (err) {
