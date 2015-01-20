@@ -692,6 +692,14 @@ var uploadForm = (function() {
         }
       });
 
+      $("[name=genus]").on("keyup", function() {
+        if ($(this).val().length < 1) {
+          $("[name=species]").prop("disabled", true);
+        } else {
+          $("[name=species]").prop("disabled", false);
+        }
+      });
+      
       /* Set up the species autocomplete */
       // Out with the old
       $("[name=species]").typeahead("destroy");

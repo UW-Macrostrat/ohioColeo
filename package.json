@@ -3,14 +3,15 @@
   "description": "A beetle site",
   "version": "0.0.1",
   "dependencies": {
-    "express"     : "3.x",
-    "mustache"    : "0.7.x",
-    "consolidate" : "0.9.x",
-    "connect"     : "2.7.x",
-    "easyimage"   : "0.1.x",
-    "pg"          : "2.x",
-    "postgeo"     : ">=0.1.2",
-    "bower"       : ">=1.x",
-    "async"       : ">=0.8.x"
+    "async": ">=0.8.x",
+    "bower": ">=1.x",
+    "connect": "2.7.x",
+    "consolidate": "0.9.x",
+    "dbgeo": "0.0.3",
+    "easyimage": "0.1.x",
+    "express": "3.x",
+    "mustache": "0.7.x",
+    "pg": "2.x",
+    "postgeo": ">=0.1.2"
   }
 }
