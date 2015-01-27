@@ -14,3 +14,4 @@
 2. ````./setup.sh````
 9.  Rename ````routes/credentials.js.example```` to ````routes/credentials.js````
 10.  Edit ````routes/credentials.js```` with your credentials
+11.  You must make sure that the user handling scripts has write permissions to the directory containing images /public/images
