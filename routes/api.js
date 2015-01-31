@@ -80,6 +80,7 @@ exports.occurrences = function(req, res) {
   ** id and taxon_name are different ways to apply essentially the same filter **
   
   */
+  console.log(req.query);
   var params = [];
 
   var query = "SELECT o.id, to_char(o.collection_date_start, 'Mon DD, YYYY') AS collection_start_date, to_char(o.collection_date_end, 'Mon DD, YYYY') AS collection_end_date, o.location_note, o.n_total_specimens, o.only_observed, ST_AsLatLonText(o.the_geom, 'D.DDDDDD') AS geometry, o.fips, CONCAT(p.first_name, ' ', p.last_name) AS collector, p.id AS collector_id, t.taxon_name, t.common_name, t.taxon_author, t.taxon_family, t.taxon_genus, t.taxon_species, cm.collection_method, b.bait, media.collection_medium, n.note, e.environ, i.main_file AS image, i.description AS image_description, ST_AsLatLonText(i.the_geom, 'D.DDDDDD') AS image_geometry, gb.geom_basis FROM neodb.occurrences o LEFT OUTER JOIN neodb.taxa t ON o.taxon_ID = t.id LEFT OUTER JOIN neodb.collection_methods cm ON o.method_id = cm.id LEFT OUTER JOIN neodb.baits b ON o.bait_id = b.id LEFT OUTER JOIN neodb.collection_media media ON o.medium_id = media.id LEFT OUTER JOIN neodb.notes n ON o.note_id = n.id INNER JOIN neodb.occurrences_collectors oc ON o.id = oc.occurrence_id INNER JOIN neodb.people p ON oc.collector_id = p.id LEFT OUTER JOIN neodb.occurrences_environments oe ON o.id = oe.occurrence_id LEFT OUTER JOIN neodb.environments e ON oe.environment_id = e.id LEFT OUTER JOIN neodb.occurrences_images oi ON o.id = oi.occurrence_id LEFT OUTER JOIN neodb.images i ON oi.image_id = i.id LEFT OUTER JOIN neodb.geom_bases gb ON o.geom_basis_id = gb.id ";
@@ -156,6 +157,50 @@ exports.occurrences = function(req, res) {
     }
   }
 
+  if (req.query.order) {
+    var placeholder = "$" + (params.length + 1);
+
+    if (params.length > 0) {
+      query += "AND taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_order = " + placeholder + ") ";
+    } else {
+      query += "WHERE taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_order = " + placeholder + ") ";
+    }
+    params.push(req.query.order);
+  }
+
+  if (req.query.family) {
+    var placeholder = "$" + (params.length + 1);
+    
+    if (params.length > 0) {
+      query += "AND taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_family = " + placeholder + ") ";
+    } else {
+      query += "WHERE taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_family = " + placeholder + ") ";
+    }
+    params.push(req.query.family);
+  }
+
+  if (req.query.genus) {
+    var placeholder = "$" + (params.length + 1);
+    
+    if (params.length > 0) {
+      query += "AND taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_genus = " + placeholder + ") ";
+    } else {
+      query += "WHERE taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_genus = " + placeholder + ") ";
+    }
+    params.push(req.query.genus);
+  }
+
+  if (req.query.species) {
+    var placeholder = "$" + (params.length + 1);
+    
+    if (params.length > 0) {
+      query += "AND taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_species = " + placeholder + ") ";
+    } else {
+      query += "WHERE taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_genus = " + placeholder + ") ";
+    }
+    params.push(req.query.species);
+  }
+
   // If collector
   if (req.query.collector && req.query.collector !== "") {
     if (params.length > 0) {
@@ -212,6 +257,10 @@ exports.autocomplete = function(req, res) {
   req.params.type = req.params.type.replace(".json", "");
   var options = {
     "taxa": "SELECT DISTINCT taxon_name AS name FROM neodb.taxa ORDER BY taxon_name ASC",
+    "order": "SELECT DISTINCT taxon_order AS name FROM neodb.taxa ORDER BY taxon_order ASC",
+    "family": "SELECT DISTINCT taxon_family AS name FROM neodb.taxa ORDER BY taxon_family ASC",
+    "genus": "SELECT DISTINCT taxon_genus AS name FROM neodb.taxa ORDER BY taxon_genus ASC",
+    "species": "SELECT DISTINCT taxon_species AS name FROM neodb.taxa ORDER BY taxon_species ASC",
     "collectors": "SELECT CONCAT(first_name, ' ', last_name) AS name, last_name FROM neodb.people ORDER BY last_name ASC",
     "counties": "SELECT DISTINCT name FROM neodb.ohio"
   }

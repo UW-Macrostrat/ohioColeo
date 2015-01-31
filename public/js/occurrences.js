@@ -21,12 +21,16 @@ var occPage = (function() {
   function getData() {
     var county = getSearchVar("county"),
         occurrence = getSearchVar("taxon_name"),
-        collector = getSearchVar("collector");
+        collector = getSearchVar("collector"),
+        order = getSearchVar("order"),
+        family = getSearchVar("family"),
+        genus = getSearchVar("genus"),
+        species = getSearchVar("species");
 
     // Slop the URL together, as empty params are ignored in the api
     $.ajax({
       type:'GET',
-      url:'/api/occurrences?county=' + county + '&taxon_name=' + occurrence + '&collector=' + collector, 
+      url:'/api/occurrences?county=' + county + '&taxon_name=' + occurrence + '&collector=' + collector + '&order=' + order + '&family=' + family + '&genus=' + genus + '&species=' + species, 
       dataType: 'json', 
       async: false,
       success: function(result) {
