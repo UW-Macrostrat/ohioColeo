@@ -143,23 +143,14 @@ var indexPage = (function() {
               counties.resetStyle(e.target);
             },
             click: function(e) {
-              $.getJSON("/api/occurrences?county=" + layer.feature.properties.name, function(data) {
+              $.getJSON("/api/map/families?county=" + layer.feature.properties.name, function(data) {
                 var content = "<h4>" + layer.feature.properties.name + " County</h4>";
 
-                if (data.length > 0 && data[0].taxon_name.length > 0) {
-                  content += "<br><strong>Occurrences:</strong><br>";
+                if (data.length > 0 && data[0].taxon_family.length > 0) {
+                  content += "<br><strong>Families:</strong><br>";
 
-                  var occurrences = {};
                   data.forEach(function(d) {
-                    if (occurrences[d.taxon_name]) {
-                      occurrences[d.taxon_name] += 1;
-                    } else {
-                      occurrences[d.taxon_name] = 1
-                    }
-                  });
-
-                  Object.keys(occurrences).forEach(function(d) {
-                    content += d + " (" + occurrences[d] + ")<br>";
+                    content += d.taxon_family + " (" + d.count + ")<br>";
                   });
                 }
 

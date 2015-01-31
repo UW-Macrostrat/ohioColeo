@@ -144,6 +144,23 @@ var occPage = (function() {
             },
             mouseout: function(e) {
               counties.resetStyle(e.target);
+            },
+            click: function(e) {
+              $.getJSON("/api/map/families?county=" + layer.feature.properties.name, function(data) {
+                var content = "<h4>" + layer.feature.properties.name + " County</h4>";
+
+                if (data.length > 0 && data[0].taxon_family.length > 0) {
+                  content += "<br><strong>Families:</strong><br>";
+
+                  data.forEach(function(d) {
+                    content += d.taxon_family + " (" + d.count + ")<br>";
+                  });
+                }
+
+                content += "<br><a href='/occurrences?county=" + layer.feature.properties.name + "'>More info</a>"
+
+                layer.bindPopup(content).openPopup();
+              });
             }
           });
 

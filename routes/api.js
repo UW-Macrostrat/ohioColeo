@@ -58,6 +58,16 @@ exports.map = function(req, res) {
   }
 }
 
+exports.mapCounty = function(req, res) {
+  if (req.query.county) {
+    client.query("SELECT taxon_family, count(*) as count FROM neodb.occurrences o JOIN neodb.taxa t ON o.taxon_id = t.id JOIN neodb.ohio ohio ON ST_Intersects(ohio.geom, o.the_geom) WHERE ohio.name = $1 GROUP BY taxon_family", [req.query.county], function(error, data) {
+      res.json(data.rows);
+    });
+  } else {
+    res.json({"error": "Please supply a county name"});
+  }
+}
+
 exports.bounds = function(req, res) {
   if (req.query.county) {
     client.query("SELECT ST_AsGeoJSON(ST_Extent(geom)) AS bounds FROM neodb.ohio WHERE name = $1", [req.query.county], function(error, data) {
