@@ -185,7 +185,7 @@ exports.uploadPost = function(req, res) {
     function(error, results) {
         if (error) {
             res.send("Error uploading. Please try again. ", error);
-            console.log("There was an issue - ", err);
+            console.log("There was an issue - ", error);
         } else {
             // Insert into the occurrences table
             var collection_date_start = req.body.collection_date_start,

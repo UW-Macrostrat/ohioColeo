@@ -74,7 +74,7 @@ var indexPage = (function() {
       center: new L.LatLng(40.2, -82.9),
       zoom: 7,
       minZoom: 7,
-      maxZoom: 9,
+      maxZoom: 13,
       maxBounds: [
         [37, -86],
         [43, -80]
@@ -98,7 +98,7 @@ var indexPage = (function() {
 
     info.update = function(attrs) {
       this.div.innerHTML = "<h4>" + attrs.name + "</h4>";
-      this.div.innerHTML += "<strong>" + attrs.count + " occurrence(s)</strong>";
+      this.div.innerHTML += "<strong>" + attrs.count + ((attrs.count == 1) ? " family" : " families") +  "</strong>";
     }
 
     info.addTo(map);
@@ -106,18 +106,20 @@ var indexPage = (function() {
     var clusterLayer = new L.MarkerClusterGroup({ showCoverageOnHover: false });
 
     map.on("zoomend", function() {
-      if (map.getZoom() === 9) {
+      if (map.getZoom() > 9) {
         map.addLayer(clusterLayer);
+        map.removeLayer(counties);
       } else {
         if (map.hasLayer(clusterLayer)) {
           map.removeLayer(clusterLayer);
+          map.addLayer(counties);
         }
       }
     });
 
 
     $.getJSON("/api/map", function(data) {
-      var counties = L.geoJson(data, {
+      counties = L.geoJson(data, {
         style: function(feature) {
           return {
             "color": "#777",
@@ -143,7 +145,7 @@ var indexPage = (function() {
               counties.resetStyle(e.target);
             },
             click: function(e) {
-              $.getJSON("/api/map/families?county=" + layer.feature.properties.name, function(data) {
+              $.getJSON("/api/families?county=" + layer.feature.properties.name, function(data) {
                 var content = "<h4>" + layer.feature.properties.name + " County</h4>";
 
                 if (data.length > 0 && data[0].taxon_family.length > 0) {

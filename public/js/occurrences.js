@@ -25,12 +25,13 @@ var occPage = (function() {
         order = getSearchVar("order"),
         family = getSearchVar("family"),
         genus = getSearchVar("genus"),
-        species = getSearchVar("species");
+        species = getSearchVar("species"),
+        oid = getSearchVar("oid");
 
     // Slop the URL together, as empty params are ignored in the api
     $.ajax({
       type:'GET',
-      url:'/api/occurrences?county=' + county + '&taxon_name=' + occurrence + '&collector=' + collector + '&order=' + order + '&family=' + family + '&genus=' + genus + '&species=' + species, 
+      url:'/api/occurrences?county=' + county + '&taxon_name=' + occurrence + '&collector=' + collector + '&order=' + order + '&family=' + family + '&genus=' + genus + '&species=' + species + '&oid=' + oid, 
       dataType: 'json', 
       async: false,
       success: function(result) {
@@ -92,6 +93,18 @@ var occPage = (function() {
       maxZoom: 11
     });
 
+    map.on("zoomend", function() {
+      if (map.getZoom() > 9) {
+        map.addLayer(clusterLayer);
+        map.removeLayer(counties);
+      } else {
+        if (map.hasLayer(clusterLayer)) {
+          map.removeLayer(clusterLayer);
+          map.addLayer(counties);
+        }
+      }
+    });
+
     // add an OpenStreetMap tile layer
     L.tileLayer(  
       'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png', {
@@ -113,7 +126,7 @@ var occPage = (function() {
       });
     }
 
-    clusterLayer.addTo(map);
+    //clusterLayer.addTo(map);
 
     if (getSearchVar("taxon_name").length > 2) {
       var url = "/api/map?taxon=" + getSearchVar("taxon_name");
@@ -121,7 +134,7 @@ var occPage = (function() {
       var url = "/api/map";
     }
     $.getJSON(url, function(data) {
-      var counties = L.geoJson(data, {
+      counties = L.geoJson(data, {
         style: function(feature) {
           return {
             "color": "#777",
@@ -146,7 +159,7 @@ var occPage = (function() {
               counties.resetStyle(e.target);
             },
             click: function(e) {
-              $.getJSON("/api/map/families?county=" + layer.feature.properties.name, function(data) {
+              $.getJSON("/api/families?county=" + layer.feature.properties.name, function(data) {
                 var content = "<h4>" + layer.feature.properties.name + " County</h4>";
 
                 if (data.length > 0 && data[0].taxon_family.length > 0) {

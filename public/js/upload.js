@@ -854,7 +854,7 @@ var uploadForm = (function() {
 
   // Load the proper form page
   function updateContent(data) {
-    if (data === null) {
+    if (!data || data === null) {
       return;
     }
 
@@ -862,7 +862,7 @@ var uploadForm = (function() {
     var dots = $(".status");
     for (var i = 0; i < dots.length; i++) {
       var number = parseInt($(dots[i]).attr("id").replace("prog", ""));
-      if (number <= data.num) {
+      if (data.num && number <= data.num) {
         $("#prog" + number).removeClass("fa-circle-o").addClass("fa-circle");
       } else {
         $("#prog" + number).removeClass("fa-circle").addClass("fa-circle-o");
@@ -950,12 +950,29 @@ function validate() {
   collection date
   Location
   location resolution
+  
+  Verify that any <select> with the option of "-- Not Listed --" has an alternate value
+  Determiner - determiner, new_determiner_first_name, new_determiner_last_name
+  Collector - collector, new_collector_first_name, new_collector_last_name
+  Collection Method - collection_method, new_collection_method
+  Bait Type - bait_type, new_bait_type
+  Collection Media - collection_media, new_collection_medium
+  Environment - environment, new_environment, new_environment_type, new_environment_class
+  Photographer - photographer, new_photographer_first_name, new_photographer_last_name
 
   */
   var family = $('[name=family]').val(),
       collection_date = $('[name=collection_date_start]').val(),
       lat = $('[name=lat]').val(),
-      geom_basis = $('[name=geom_basis]').val();
+      geom_basis = $('[name=geom_basis]').val(),
+
+      determiner = $('[name=determiner]').val(),
+      collector = $('[name=collector]').val(),
+      collectionMethod = $('[name=collection_method]').val(),
+      baitType = $('[name=bait_type]').val(),
+      collectionMedia = $('[name=collection_media]').val(),
+      environment = $('[name=environment]').val(),
+      photographer = $('[name=photographer]').val();
 
   if (family.length < 1) {
     $("#familyGroup").addClass("has-error");
@@ -997,11 +1014,75 @@ function validate() {
     alert("Please enter a valid collection date on page 3");
     return false;
   }
+
+  else if (determiner === 'na') {
+    var new_determiner_first_name = $('[name=new_determiner_first_name]').val(),
+        new_determiner_last_name = $('[name=new_determiner_last_name]').val();
+
+    if (new_determiner_first_name.length < 1 || new_determiner_last_name.length < 3) {
+      alert("Please enter a first and last name for the new determiner");
+      return false;
+    }
+  }
+  else if (collector === 'na') {
+    var new_collector_first_name = $('[name=new_collector_first_name]').val(),
+        new_collector_last_name = $('[name=new_collector_last_name]').val();
+
+    if (new_collector_first_name.length < 1 || new_collector_last_name.length < 3) {
+      alert("Please enter a first and last name for the new collector");
+      return false;
+    }
+  }
+  else if (collectionMethod === 'na') {
+    var new_collection_method = $('[name=new_collection_method]').val();
+
+    if (new_collection_method.length < 3) {
+      alert("Please enter a new collection method or select one from the list");
+      return false;
+    }
+  }
+  else if (baitType === 'na') {
+    var new_bait_type = $('[name=new_bait_type]').val();
+
+    if (new_bait_type.length < 3) {
+      alert("Please enter a new bait type or select one from the list");
+      return false;
+    }
+  }
+  else if (collectionMedia === 'na') {
+    var new_collection_medium = $('[name=new_collection_medium]').val();
+
+    if (new_collection_medium.length < 3) {
+      alert("Please enter a new collection medium or select one from the list");
+      return false;
+    }
+  }
+  else if (environment === 'na') {
+    var new_environment = $('[name=new_environment]').val(),
+        new_environment_type = $('[name=new_environment_type]').val(),
+        new_environment_class = $('[name=new_environment_class]').val();
+
+    if (new_environment.length < 3 || new_environment_type.length < 3 || new_environment_class < 3) {
+      alert("Please enter a description for the new environment, or select one from the list");
+      return false;
+    }
+  }
+  else if (photographer === 'na') {
+    var new_photographer_first_name = $('[name=new_photographer_first_name]').val(),
+        new_photographer_last_name = $('[name=new_photographer_last_name]').val();
+
+    if (new_photographer_first_name.length < 1 || new_photographer_last_name.length < 3) {
+      alert("Please enter a first and last name for the new photographer");
+      return false;
+    }
+  }
+
   else {
     //localStorage.setItem("formData", "");
     // Enable the disabled
     var disabled = $("#uploadForm").find(':input:disabled').removeAttr('disabled');
-
+    console.log($("#uploadForm").serialize())
+    //return false;
     return true;
   }
 

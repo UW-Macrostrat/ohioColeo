@@ -58,16 +58,6 @@ exports.map = function(req, res) {
   }
 }
 
-exports.mapCounty = function(req, res) {
-  if (req.query.county) {
-    client.query("SELECT taxon_family, count(*) as count FROM neodb.occurrences o JOIN neodb.taxa t ON o.taxon_id = t.id JOIN neodb.ohio ohio ON ST_Intersects(ohio.geom, o.the_geom) WHERE ohio.name = $1 GROUP BY taxon_family", [req.query.county], function(error, data) {
-      res.json(data.rows);
-    });
-  } else {
-    res.json({"error": "Please supply a county name"});
-  }
-}
-
 exports.bounds = function(req, res) {
   if (req.query.county) {
     client.query("SELECT ST_AsGeoJSON(ST_Extent(geom)) AS bounds FROM neodb.ohio WHERE name = $1", [req.query.county], function(error, data) {
@@ -78,19 +68,35 @@ exports.bounds = function(req, res) {
   }
 }
 
+exports.families = function(req, res) {
+  if (req.query.county) {
+    client.query("SELECT taxon_family, count(*) as count FROM neodb.occurrences o JOIN neodb.taxa t ON o.taxon_id = t.id JOIN neodb.ohio ohio ON ST_Intersects(ohio.geom, o.the_geom) WHERE ohio.name = $1 GROUP BY taxon_family ORDER BY taxon_family asc", [req.query.county], function(error, data) {
+      res.json(data.rows);
+    });
+  } else {
+    client.query("SELECT taxon_family, count(*) as count FROM neodb.occurrences o JOIN neodb.taxa t ON o.taxon_id = t.id GROUP BY taxon_family ORDER BY taxon_family asc", [], function(error, data) {
+      res.json(data.rows);
+    });
+  }
+}
+
 exports.occurrences = function(req, res) {
   /* Possible query params:
     - county || finds all occurrences in a given county || string || exact match
     - mindate || finds all occcurrences with a collection_date_start younger than the given date || YYYY-MM-DD
     - maxdate || finds all occurrences with a collection_date_start older than the given date || YYYY-MM-DD
-    - oid || finds all occurrences like a given an occurrence id || int || exact match
+    - oid || finds all occurrences with a given occurrence id || int || exact match
     - taxon_name || finds all occurrences given a taxonomic name || string || exact match
+    - order || finds all occurrences given a order || string || exact match
+    - family || finds all occurrences given a family || string || exact match
+    - genus || finds all occurrences given a genus || string || exact match
+    - species || finds all occurrences given a species|| string || exact match
     - collector || finds all occurrences given a collector last name || string || exact match
 
   ** id and taxon_name are different ways to apply essentially the same filter **
   
   */
-  console.log(req.query);
+
   var params = [];
 
   var query = "SELECT o.id, to_char(o.collection_date_start, 'Mon DD, YYYY') AS collection_start_date, to_char(o.collection_date_end, 'Mon DD, YYYY') AS collection_end_date, o.location_note, o.n_total_specimens, o.only_observed, ST_AsLatLonText(o.the_geom, 'D.DDDDDD') AS geometry, o.fips, CONCAT(p.first_name, ' ', p.last_name) AS collector, p.id AS collector_id, t.taxon_name, t.common_name, t.taxon_author, t.taxon_family, t.taxon_genus, t.taxon_species, cm.collection_method, b.bait, media.collection_medium, n.note, e.environ, i.main_file AS image, i.description AS image_description, ST_AsLatLonText(i.the_geom, 'D.DDDDDD') AS image_geometry, gb.geom_basis FROM neodb.occurrences o LEFT OUTER JOIN neodb.taxa t ON o.taxon_ID = t.id LEFT OUTER JOIN neodb.collection_methods cm ON o.method_id = cm.id LEFT OUTER JOIN neodb.baits b ON o.bait_id = b.id LEFT OUTER JOIN neodb.collection_media media ON o.medium_id = media.id LEFT OUTER JOIN neodb.notes n ON o.note_id = n.id INNER JOIN neodb.occurrences_collectors oc ON o.id = oc.occurrence_id INNER JOIN neodb.people p ON oc.collector_id = p.id LEFT OUTER JOIN neodb.occurrences_environments oe ON o.id = oe.occurrence_id LEFT OUTER JOIN neodb.environments e ON oe.environment_id = e.id LEFT OUTER JOIN neodb.occurrences_images oi ON o.id = oi.occurrence_id LEFT OUTER JOIN neodb.images i ON oi.image_id = i.id LEFT OUTER JOIN neodb.geom_bases gb ON o.geom_basis_id = gb.id ";

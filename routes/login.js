@@ -29,7 +29,10 @@ exports.login = function(req, res) {
 }
 
 exports.logout = function(req, res) {
-  delete req.session.user_id;
+  if (req.session && req.session.user_id) {
+    delete req.session.user_id;
+  }
+  
   res.redirect('/');
 }
 
