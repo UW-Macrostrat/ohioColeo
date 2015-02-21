@@ -69,15 +69,68 @@ exports.bounds = function(req, res) {
 }
 
 exports.families = function(req, res) {
-  if (req.query.county) {
-    client.query("SELECT taxon_family, count(*) as count FROM neodb.occurrences o JOIN neodb.taxa t ON o.taxon_id = t.id JOIN neodb.ohio ohio ON ST_Intersects(ohio.geom, o.the_geom) WHERE ohio.name = $1 GROUP BY taxon_family ORDER BY taxon_family asc", [req.query.county], function(error, data) {
-      res.json(data.rows);
-    });
-  } else {
-    client.query("SELECT taxon_family, count(*) as count FROM neodb.occurrences o JOIN neodb.taxa t ON o.taxon_id = t.id GROUP BY taxon_family ORDER BY taxon_family asc", [], function(error, data) {
-      res.json(data.rows);
-    });
+  var params = [],
+      joins = "",
+      where = "WHERE ";
+      
+  if (req.query.taxon_name) {
+    var placeholder = "$" + (params.length + 1);
+    where += ((params.length > 0) ? " AND " : "") + " t.taxon_name LIKE " + placeholder;
+    params.push("%" + req.query.taxon_name + "%");
   }
+  if (req.query.order) {
+    var placeholder = "$" + (params.length + 1);
+    where += ((params.length > 0) ? " AND " : "") + " t.taxon_order LIKE " + placeholder;
+    params.push("%" + order + "%");
+  }
+
+  if (req.query.family) {
+    var placeholder = "$" + (params.length + 1);
+    where += ((params.length > 0) ? " AND " : "") + " t.taxon_family LIKE " + placeholder;
+    params.push("%" + req.query.family + "%");
+  }
+
+  if (req.query.genus) {
+    var placeholder = "$" + (params.length + 1);
+    where += ((params.length > 0) ? " AND " : "") + " t.taxon_genus LIKE " + placeholder;
+    params.push("%" + req.query.genus + "%");
+  } 
+
+  if (req.query.species) {
+    var placeholder = "$" + (params.length + 1);
+    where += ((params.length > 0) ? " AND " : "") + " t.taxon_species LIKE " + placeholder;
+    params.push("%" + req.query.species + "%");
+  }
+
+  if (req.query.collector) {
+    var placeholder = "$" + (params.length + 1);
+    joins += " JOIN neodb.occurrences_collectors oc ON o.id = oc.occurrence_id JOIN neodb.people p ON oc.collector_id = p.id ";
+    where += ((params.length > 0) ? " AND " : "") + " p.last_name LIKE " + placeholder;
+    params.push("%" + req.query.collector + "%");
+  }
+
+  if (req.query.county) {
+    var placeholder = "$" + (params.length + 1);
+    joins += " JOIN neodb.ohio ohio ON ST_Intersects(ohio.geom, o.the_geom) ";
+    where += ((params.length > 0) ? " AND " : "") + " ohio.name = " + placeholder;
+    params.push(req.query.county);
+  }
+
+  if (params.length < 1) {
+    where = "";
+  }
+
+  //console.log(joins, where, params);
+
+  client.query("SELECT taxon_family, count(*) as count FROM neodb.occurrences o JOIN neodb.taxa t ON o.taxon_id = t.id " + joins + where + " GROUP BY taxon_family ORDER BY taxon_family asc", params, function(error, data) { 
+    if (error) {
+      console.log(error);
+      res.json("Error on /api/familes - ", error);
+    } else {
+      res.json(data.rows);
+    }
+  });
+
 }
 
 exports.occurrences = function(req, res) {
@@ -98,8 +151,23 @@ exports.occurrences = function(req, res) {
   */
 
   var params = [];
+  var query = "\
+    SELECT o.id, to_char(o.collection_date_start, 'Mon DD, YYYY') AS collection_start_date, to_char(o.collection_date_end, 'Mon DD, YYYY') AS collection_end_date, o.location_note, o.n_total_specimens, o.only_observed, ST_AsLatLonText(o.the_geom, 'D.DDDDDD') AS geometry, o.fips, CONCAT(p.first_name, ' ', p.last_name) AS collector, p.id AS collector_id, t.taxon_name, t.common_name, t.taxon_author, t.taxon_family, t.taxon_genus, t.taxon_species, cm.collection_method, b.bait, media.collection_medium, n.note, e.environ, i.main_file AS image, i.description AS image_description, ST_AsLatLonText(i.the_geom, 'D.DDDDDD') AS image_geometry, gb.geom_basis \
+    FROM neodb.occurrences o \
+    LEFT JOIN neodb.taxa t ON o.taxon_ID = t.id \
+    LEFT JOIN neodb.collection_methods cm ON o.method_id = cm.id \
+    LEFT JOIN neodb.baits b ON o.bait_id = b.id \
+    LEFT JOIN neodb.collection_media media ON o.medium_id = media.id \
+    LEFT JOIN neodb.notes n ON o.note_id = n.id \
+    JOIN neodb.occurrences_collectors oc ON o.id = oc.occurrence_id \
+    JOIN neodb.people p ON oc.collector_id = p.id \
+    LEFT JOIN neodb.occurrences_environments oe ON o.id = oe.occurrence_id \
+    LEFT JOIN neodb.environments e ON oe.environment_id = e.id \
+    LEFT JOIN neodb.occurrences_images oi ON o.id = oi.occurrence_id \
+    LEFT JOIN neodb.images i ON oi.image_id = i.id \
+    LEFT JOIN neodb.geom_bases gb ON o.geom_basis_id = gb.id \
+    ";
 
-  var query = "SELECT o.id, to_char(o.collection_date_start, 'Mon DD, YYYY') AS collection_start_date, to_char(o.collection_date_end, 'Mon DD, YYYY') AS collection_end_date, o.location_note, o.n_total_specimens, o.only_observed, ST_AsLatLonText(o.the_geom, 'D.DDDDDD') AS geometry, o.fips, CONCAT(p.first_name, ' ', p.last_name) AS collector, p.id AS collector_id, t.taxon_name, t.common_name, t.taxon_author, t.taxon_family, t.taxon_genus, t.taxon_species, cm.collection_method, b.bait, media.collection_medium, n.note, e.environ, i.main_file AS image, i.description AS image_description, ST_AsLatLonText(i.the_geom, 'D.DDDDDD') AS image_geometry, gb.geom_basis FROM neodb.occurrences o LEFT OUTER JOIN neodb.taxa t ON o.taxon_ID = t.id LEFT OUTER JOIN neodb.collection_methods cm ON o.method_id = cm.id LEFT OUTER JOIN neodb.baits b ON o.bait_id = b.id LEFT OUTER JOIN neodb.collection_media media ON o.medium_id = media.id LEFT OUTER JOIN neodb.notes n ON o.note_id = n.id INNER JOIN neodb.occurrences_collectors oc ON o.id = oc.occurrence_id INNER JOIN neodb.people p ON oc.collector_id = p.id LEFT OUTER JOIN neodb.occurrences_environments oe ON o.id = oe.occurrence_id LEFT OUTER JOIN neodb.environments e ON oe.environment_id = e.id LEFT OUTER JOIN neodb.occurrences_images oi ON o.id = oi.occurrence_id LEFT OUTER JOIN neodb.images i ON oi.image_id = i.id LEFT OUTER JOIN neodb.geom_bases gb ON o.geom_basis_id = gb.id ";
 
   if (req.query.county && req.query.county !== "") {
     var placeholder = "$" + (params.length + 1);
