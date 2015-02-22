@@ -9,8 +9,10 @@
     <link rel="stylesheet" href="/bower_components/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="/bower_components/leaflet.markerclusterer/dist/Markercluster.css" />
     <link rel="stylesheet" href="/bower_components/leaflet.markerclusterer/dist/Markercluster.Default.css" />
-    <link rel="stylesheet" href="/css/common.css"/>
 
+    <link rel="stylesheet" href="/css/common.css"/>
+    <link rel="stylesheet"href="/css/occurrences.css"/>
+    
   </head>
 
   <body>
@@ -20,32 +22,38 @@
       <div class="row" id="filterRow">
         <div class="col-sm-12">
 
-        <!--  <form class="form-inline">
-
-            <select id="collectorFilter" class="form-control input-medium">
-              <option value="0" selected="selected">Collector...</option>
-              {{#collectors}}
-              <option value="{{last_name}}">{{name}}</option>
-              {{/collectors}}
-            </select>
-
-          </form>-->
-          <div id="map"></div>
         </div>
       </div>
 
-      
+      <div class="row">
+        <div class="col-sm-8">
+          <table class="table table-condensed" id="resultTable">
+            <thead>
+              <tr>
+                <th>More Info</th>
+                <th>Family</th>
+                <th>Occurrences</th>
+              </tr>
+            </thead>
+            <tbody id="resultTbody"></tbody>
+          </table>
+        </div>
+        <div class="col-sm-4">
+          <div id="map"></div>
+        </div>
+      </div>
         
     </div>
 
     <script src="/bower_components/jquery/dist/jquery.min.js"></script>
     <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="/bower_components/typeahead.js/dist/typeahead.bundle.min.js"></script>
     <script src="/bower_components/mustache/mustache.js"></script>
     <script src="/bower_components/leaflet/dist/leaflet.js"></script>
+    <script src="/bower_components/typeahead.js/dist/typeahead.bundle.min.js"></script>
     <script src="/bower_components/leaflet.markerclusterer/dist/leaflet.markercluster.js"></script>
     <script src="/bower_components/validator-js/validator.min.js"></script>
+
     <script src="/js/common.js"></script>
-    <script src="/js/root_revised.js"></script>
+    <script src="/js/family.js"></script>
   </body>
 </html>

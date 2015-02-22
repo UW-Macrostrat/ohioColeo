@@ -72,7 +72,13 @@ exports.families = function(req, res) {
   var params = [],
       joins = "",
       where = "WHERE ";
-      
+
+  if (req.query.oid) {
+    var placeholder = "$" + (params.length + 1);
+    where += ((params.length > 0) ? " AND " : "") + " o.id = " + placeholder;
+    params.push(req.query.oid);
+  }
+
   if (req.query.taxon_name) {
     var placeholder = "$" + (params.length + 1);
     where += ((params.length > 0) ? " AND " : "") + " t.taxon_name LIKE " + placeholder;

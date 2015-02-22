@@ -48,3 +48,14 @@ exports.occurrences = function(req, res) {
     }
   });
 }
+
+exports.family = function(req, res) {
+  res.render('family', {
+    loggedin: (req.session.user_id) ? true : false,
+    username: (req.session.user_id) ? req.session.name : "",
+    partials: {
+      header: "partials/navbar"
+    }
+  });
+}
+

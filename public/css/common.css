@@ -129,3 +129,11 @@ i:hover {
 #map {
   height:450px;
 }
+
+.info {
+  background-color: #fff;
+  text-align: center;
+  padding: 7px 15px 15px 15px;
+  border-radius: 3px;
+}
+    

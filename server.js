@@ -16,7 +16,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.compress());
 
 // Ensures we can read the parameters of a POST request
-app.use(express.bodyParser({uploadDir: __dirname + '/uploads'}));
+app.use(express.bodyParser({uploadDir: __dirname + '/uploads', limit: '150mb'}));
 app.use(express.logger('dev'));
 app.use(express.cookieParser()); 
 app.use(express.methodOverride());
@@ -37,6 +37,7 @@ function checkAuth(req, res, next) {
 // Simple page routes
 app.get('/', standard.root);
 app.get('/occurrences', standard.occurrences);
+app.get('/families', standard.family);
 
 // Upload form routes
 app.get('/addBeetle', checkAuth, upload.upload);
