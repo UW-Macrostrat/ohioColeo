@@ -67,7 +67,8 @@ exports.upload = function(req, res) {
 exports.uploadPost = function(req, res) {
     // Store the contents of the form for (possible) use later
     req.session.upload = req.body;
-    console.log(req.body);
+    console.log(req._limit)
+    console.log(Object.keys(req.body).length, req.body);
 
     // Create a date for use throughout
     var d = new Date(),
@@ -82,6 +83,8 @@ exports.uploadPost = function(req, res) {
        async.parallel - all functions execute in parallel. Once done, callback is called
        async.waterfall - functions are called in order, passing values between functions
     */
+
+
 
     async.parallel({
         "taxa": function(callback) {
@@ -100,6 +103,9 @@ exports.uploadPost = function(req, res) {
             var pbdb_family_no = parseInt(req.body.pbdb_family_no),
                 pbdb_genus_no = parseInt(req.body.pbdb_genus_no) || 0,
                 pbdb_species_no = parseInt(req.body.pbdb_species_no) || 0;
+
+            req.body.genus = (!req.body.genus) ? "" : req.body.genus;
+            req.body.species = (!req.body.species) ? "" : req.body.species;
 
             // Put it in the database
             client.query("INSERT INTO neodb.taxa (taxon_name, taxon_author, common_name, taxon_family, taxon_genus, taxon_species, taxon_rank, created_on, modified_on, pbdb_family_no, pbdb_genus_no, pbdb_species_no) VALUES ($1, $2, $3, $4, $5, $6, $7, now(), now(), $8, $9, $10) RETURNING id", [taxon_name, req.body.author, req.body.common_name, req.body.family, req.body.genus, req.body.species, taxon_rank, pbdb_family_no, pbdb_genus_no, pbdb_species_no], function(err, result) {
@@ -364,193 +370,196 @@ exports.uploadPost = function(req, res) {
             "image": function(callback) {
                 // If there is one image it will be an object, if there are more than one it will be an array
                 if (req.files.filesToUpload.name || Array.isArray(req.files.filesToUpload)) {
-                    var photo_id = occurrence_id,
-                        image_date = req.body.image_date || fullDate;
+                    image_date = req.body.image_date || fullDate;
 
-                    req.session.upload.image_url = './images/main/' + occurrence_id + '.jpg';
-
-                    // get the temporary location of the file
-                    var tempPath = req.files.filesToUpload.path;
-
-                    // set where the file should actually exists - in this case it is in the "images" directory
-                    var targetPath =  credentials.path + '/public/images/full/' + photo_id + '.jpg';
-
-                    async.waterfall([
-                        // Move and rename image
-                        function(callback) {
-                            fs.rename(tempPath, targetPath, function(err) {
-                                if (err) {
-                                    callback(err);
-                                    console.log("Error renaming and moving image - ", err);
-                                } else {
-                                    callback(null);
-                                }
-                            });
-                        },
-
-                        // Get image info
-                        function(callback) {
-                            easyimg.info(targetPath, function(err, info, stderr) {
-                                if (err) {
-                                    callback(err);
-                                    console.log("Error getting image info - ", err);
-                                } else {
-                                    if (info.width > info.height) {
-                                        var width = { "medium": 720, "thumb": 160 };
+                    if (req.body.new_photographer_first_name) {
+                        async.waterfall([
+                            // Insert new photographer
+                            function(callbackB) {
+                                client.query("INSERT INTO neodb.people(first_name, last_name, created_on, modified_on) VALUES($1, $2, now(), now()) RETURNING id", [req.body.new_photographer_first_name, req.body.new_photographer_last_name], function(err, result) {
+                                    if (err) {
+                                        callback(err);
+                                        console.log("Error inserting into table 'people' - ", err);
                                     } else {
-                                        var width = { "medium": 540, "thumb": 120 };
+                                        var person_id = result.rows[0].id;
+                                        callbackB(null, person_id);
                                     }
-                                    callback(null, width);
-                                }
-                            });
-                        },
-
-                        // Create medium version of image
-                        function(imgWidth, callback) {
-                            easyimg.resize({src: credentials.path + '/public/images/full/' + photo_id + '.jpg', dst: credentials.path + '/public/images/main/' + photo_id + '.jpg', width: imgWidth.medium }, function(err, image) {
-                                if (err) {
-                                    callback(err);
-                                    console.log("Error converting to medium sized version - ", err);
-                                } else {
-                                    callback(null, imgWidth);
-                                }
-                            });
-                        },
-
-                        // Create thumbnail version of image
-                        function(imgWidth, callback) {
-                            easyimg.resize({ src: credentials.path + '/public/images/full/' + photo_id + '.jpg', dst: credentials.path + '/public/images/thumbs/' + photo_id + '.jpg', width: imgWidth.thumb }, function(err, image) {
-                                if (err) {
-                                    callback(err);
-                                    console.log("Error converting to thumbnail version - ", err);
-                                } else {
-                                    callback(null);
-                                }
-                            })
-                        }
-
-                    ], function(error, result) {
-                        // if new photographer
-                        if (req.body.new_photographer_first_name) {
-                            async.waterfall([
-                                // Insert new photographer
-                                function(callbackB) {
-                                    client.query("INSERT INTO neodb.people(first_name, last_name, created_on, modified_on) VALUES($1, $2, now(), now()) RETURNING id", [req.body.new_photographer_first_name, req.body.new_photographer_last_name], function(err, result) {
+                                });
+                            },
+                            // Insert new role
+                            function(person_id, callbackB) {
+                                client.query("INSERT INTO neodb.people_roles(person_id, role_id, created_on, modified_on) VALUES($1, $2, now(), now())", [person_id, 8], function(err, result) {
+                                    if (err) {
+                                        callback(err);
+                                        console.log("Error inserting into table 'people_roles' - ", err);
+                                    } else {
+                                        callbackB(null, person_id);
+                                    }
+                                });
+                            },
+                            // Insert image
+                            function(person_id, callbackB) {
+                                client.query("INSERT INTO neodb.images(photographer_id, full_file, main_file, thumb_file, description, image_date, created_on, modified_on) VALUES($1, concat(lastval(),'.jpg'), concat(lastval(),'.jpg'), concat(lastval(),'.jpg'), $2, to_date($3, 'MM/DD/YYYY'), now(), now()) RETURNING id", [person_id, req.body.photo_description, image_date], function(err, result) {
+                                    if (err) {
+                                        callback(err);
+                                        console.log("Error inserting into table 'images' after inserting into table 'people' - ", err);
+                                    } else {
+                                        image_id = result.rows[0].id;
+                                        callbackB(null, image_id);
+                                    }
+                                });
+                            },
+                            // Insert image location
+                            function(image_id, callbackB) {
+                                if (req.body.photolat) {
+                                    client.query("UPDATE neodb.images SET the_geom = ST_geomFromText('POINT(" + parseFloat(req.body.photolng) + " " + parseFloat(req.body.photolat) + ")', 4326) WHERE id = $1", [image_id], function(err, result) {
                                         if (err) {
                                             callback(err);
-                                            console.log("Error inserting into table 'people' - ", err);
+                                            console.log("Error inserting geometry into table 'images' after inserting into table 'people' - ", err);
                                         } else {
-                                            var person_id = result.rows[0].id;
-                                            callbackB(null, person_id);
-                                        }
-                                    });
-                                },
-                                // Insert new role
-                                function(person_id, callbackB) {
-                                    client.query("INSERT INTO neodb.people_roles(person_id, role_id, created_on, modified_on) VALUES($1, $2, now(), now())", [person_id, 8], function(err, result) {
-                                        if (err) {
-                                            callback(err);
-                                            console.log("Error inserting into table 'people_roles' - ", err);
-                                        } else {
-                                            callbackB(null, person_id);
-                                        }
-                                    });
-                                },
-                                // Insert image
-                                function(person_id, callbackB) {
-                                    client.query("INSERT INTO neodb.images(photographer_id, full_file, main_file, thumb_file, description, image_date, created_on, modified_on) VALUES($1, $2, $3, $4, $5, to_date($6, 'MM/DD/YYYY'), now(), now()) RETURNING id", [person_id, occurrence_id + ".jpg", occurrence_id + ".jpg", occurrence_id + ".jpg", req.body.photo_description, image_date], function(err, result) {
-                                        if (err) {
-                                            callback(err);
-                                            console.log("Error inserting into table 'images' after inserting into table 'people' - ", err);
-                                        } else {
-                                            var image_id = result.rows[0].id;
                                             callbackB(null, image_id);
                                         }
                                     });
-                                },
-                                // Insert image location
-                                function(image_id, callbackB) {
-                                    if (req.body.photolat) {
-                                        client.query("UPDATE neodb.images SET the_geom = ST_geomFromText('POINT(" + parseFloat(req.body.photolng) + " " + parseFloat(req.body.photolat) + ")', 4326) WHERE id = $1", [image_id], function(err, result) {
-                                            if (err) {
-                                                callback(err);
-                                                console.log("Error inserting geometry into table 'images' after inserting into table 'people' - ", err);
-                                            } else {
-                                                callbackB(null, image_id);
-                                            }
-                                        });
+                                } else {
+                                    callbackB(null, image_id);
+                                }
+                            },
+                            // Insert into occurrence images
+                            function(image_id, callbackB) {
+                                client.query("INSERT INTO neodb.occurrences_images(image_id, occurrence_id, created_on, modified_on) VALUES ($1, $2, now(), now())", [image_id, occurrence_id], function(err, result) {
+                                    if (err) {
+                                        callback(err);
+                                        console.log("Error inserting into table occurrences_images - ", err);
+                                    } else {
+                                        callbackB(null, null);
+                                    }
+                                });
+                            }
+                        ], function(errors, done) {
+                            // Done with new photog waterfall
+                            callback(null, null);
+                        });
+                    } else {
+                    // If we're using an existing photographer
+                        async.waterfall([
+                            // insert image
+                            function(callbackB) {
+                                var photog = parseInt(req.body.photographer);
+                                client.query("INSERT INTO neodb.images(photographer_id, full_file, main_file, thumb_file, description, image_date, created_on, modified_on) VALUES($1, concat(lastval(),'.jpg'), concat(lastval(),'.jpg'), concat(lastval(),'.jpg'), $2, to_date($3, 'MM/DD/YYYY'), now(), now()) RETURNING id", [photog, req.body.photo_description, image_date], function(err, result) {
+                                    if (err) {
+                                        callback(err);
+                                        console.log("Error inserting into table 'images' - ", err);
+                                    } else {
+                                        image_id = result.rows[0].id;
+                                        callbackB(null, image_id);
+                                    }
+                                });
+                            },
+                            // Insert image location
+                            function(image_id, callbackB) {
+                                if (req.body.photolat) {
+                                    client.query("UPDATE neodb.images SET the_geom = ST_geomFromText('POINT(" + parseFloat(req.body.photolng) + " " + parseFloat(req.body.photolat) + ")', 4326) WHERE id = " + image_id, function(err, result) {
+                                        if (err) {
+                                            callback(err);
+                                            console.log("Error inserting geometry into table 'images' - ", err);
+                                        } else {
+                                            callbackB(null, image_id);
+                                        }
+                                    });
+                                } else {
+                                    callbackB(null, image_id);
+                                }
+                            },
+                            // Insert into occurrence images
+                            function(image_id, callbackB) {
+                                client.query("INSERT INTO neodb.occurrences_images(image_id, occurrence_id, created_on, modified_on) VALUES ($1, $2, now(), now())", [image_id, occurrence_id], function(err, result) {
+                                    if (err) {
+                                        callback(err);
+                                        console.log("Error inserting into table occurrences_images - ", err);
                                     } else {
                                         callbackB(null, image_id);
                                     }
-                                },
-                                // Insert into occurrence images
-                                function(image_id, callbackB) {
-                                    client.query("INSERT INTO neodb.occurrences_images(image_id, occurrence_id, created_on, modified_on) VALUES ($1, $2, now(), now())", [image_id, occurrence_id], function(err, result) {
-                                        if (err) {
-                                            callback(err);
-                                            console.log("Error inserting into table occurrences_images - ", err);
-                                        } else {
-                                            callbackB(null, null);
-                                        }
-                                    });
-                                }
-                            ], function(errors, done) {
-                                // Done with new photog waterfall
-                                callback(null, null);
-                            });
-                        } else {
-                        // If we're using an existing photographer
-                            async.waterfall([
-                                // insert image
-                                function(callbackB) {
-                                    var photog = parseInt(req.body.photographer);
-                                    client.query("INSERT INTO neodb.images(photographer_id, full_file, main_file, thumb_file, description, image_date, created_on, modified_on) VALUES($1, $2, $3, $4, $5, to_date($6, 'MM/DD/YYYY'), now(), now()) RETURNING id", [photog, occurrence_id + ".jpg", occurrence_id + ".jpg", occurrence_id + ".jpg", req.body.photo_description, image_date], function(err, result) {
-                                        if (err) {
-                                            callback(err);
-                                            console.log("Error inserting into table 'images' - ", err);
-                                        } else {
-                                            var image_id = result.rows[0].id;
-                                            callbackB(null, image_id);
-                                        }
-                                    });
-                                },
-                                // Insert image location
-                                function(image_id, callbackB) {
-                                    if (req.body.photolat) {
-                                        client.query("UPDATE neodb.images SET the_geom = ST_geomFromText('POINT(" + parseFloat(req.body.photolng) + " " + parseFloat(req.body.photolat) + ")', 4326) WHERE id = " + image_id, function(err, result) {
+                                });
+                            }
+
+                        ], function(errors, image_id) {
+                            // Done with existing photog waterfall
+                            if (errors) {
+                                callback(errors);
+                            } else {
+                                var photo_id = image_id,
+                                    image_date = req.body.image_date || fullDate;
+
+                                req.session.upload.image_url = './images/main/' + photo_id + '.jpg';
+
+                                // get the temporary location of the file
+                                var tempPath = req.files.filesToUpload.path;
+
+                                // set where the file should actually exists - in this case it is in the "images" directory
+                                var targetPath =  credentials.path + '/public/images/full/' + photo_id + '.jpg';
+
+                                async.waterfall([
+                                    // Move and rename image
+                                    function(callback) {
+                                        fs.rename(tempPath, targetPath, function(err) {
                                             if (err) {
                                                 callback(err);
-                                                console.log("Error inserting geometry into table 'images' - ", err);
+                                                console.log("Error renaming and moving image - ", err);
                                             } else {
-                                                callbackB(null, image_id);
+                                                callback(null);
                                             }
                                         });
-                                    } else {
-                                        callback(null, image_id);
-                                    }
-                                },
-                                // Insert into occurrence images
-                                function(image_id, callbackB) {
-                                    client.query("INSERT INTO neodb.occurrences_images(image_id, occurrence_id, created_on, modified_on) VALUES ($1, $2, now(), now())", [image_id, occurrence_id], function(err, result) {
-                                        if (err) {
-                                            callback(err);
-                                            console.log("Error inserting into table occurrences_images - ", err);
-                                        } else {
-                                            callbackB(null, image_id);
-                                        }
-                                    });
-                                }
+                                    },
 
-                            ], function(errors, done) {
-                                // Done with existing photog waterfall
-                                if (errors) {
-                                    callback(errors);
-                                } else {
+                                    // Get image info
+                                    function(callback) {
+                                        easyimg.info(targetPath, function(err, info, stderr) {
+                                            if (err) {
+                                                callback(err);
+                                                console.log("Error getting image info - ", err);
+                                            } else {
+                                                if (info.width > info.height) {
+                                                    var width = { "medium": 720, "thumb": 160 };
+                                                } else {
+                                                    var width = { "medium": 540, "thumb": 120 };
+                                                }
+                                                callback(null, width);
+                                            }
+                                        });
+                                    },
+
+                                    // Create medium version of image
+                                    function(imgWidth, callback) {
+                                        easyimg.resize({src: credentials.path + '/public/images/full/' + photo_id + '.jpg', dst: credentials.path + '/public/images/main/' + photo_id + '.jpg', width: imgWidth.medium }, function(err, image) {
+                                            if (err) {
+                                                callback(err);
+                                                console.log("Error converting to medium sized version - ", err);
+                                            } else {
+                                                callback(null, imgWidth);
+                                            }
+                                        });
+                                    },
+
+                                    // Create thumbnail version of image
+                                    function(imgWidth, callback) {
+                                        easyimg.resize({ src: credentials.path + '/public/images/full/' + photo_id + '.jpg', dst: credentials.path + '/public/images/thumbs/' + photo_id + '.jpg', width: imgWidth.thumb }, function(err, image) {
+                                            if (err) {
+                                                callback(err);
+                                                console.log("Error converting to thumbnail version - ", err);
+                                            } else {
+                                                callback(null);
+                                            }
+                                        })
+                                    }
+
+                                ], function(error, result) {
                                     callback(null, null);
-                                }
-                            });
-                        }
-                    });
+                                    
+                                });
+                                
+                            }
+                        });
+                    }
                 } else {
                     // If no images, finish up
                     callback(null);
