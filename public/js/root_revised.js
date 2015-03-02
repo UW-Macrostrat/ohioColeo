@@ -54,12 +54,12 @@ var indexPage = (function() {
   }
 
   function choropleth(value) {
-    return value > 20 ? "#294E2F" :
-           value > 15 ? "#3B6C44" :
-           value > 10 ? "#4E8D59" :
-           value > 5  ? "#63AF70" :
-           value > 0  ? "#78D287" :
-                        "#bbb";
+    return value > 20 ? "#045a8d" :
+           value > 15 ? "#2b8cbe" :
+           value > 10 ? "#74a9cf" :
+           value > 5  ? "#bdc9e1" :
+           value > 0  ? "#f1eef6" :
+                        "#333";
   }
 
   function init() {
@@ -122,9 +122,9 @@ var indexPage = (function() {
       counties = L.geoJson(data, {
         style: function(feature) {
           return {
-            "color": "#777",
+            "color": "#333",
             "weight": "1",
-            "opacity": "1",
+            "opacity": "0.5",
             "fillOpacity": 0.5,
             "fillColor": choropleth(feature.properties.count)
           }

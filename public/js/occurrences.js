@@ -167,9 +167,9 @@ function addCounties(data, fips_hash) {
   counties = L.geoJson(data, {
     style: function(feature) {
       return {
-        "color": "#777",
+        "color": "#333",
         "weight": "1",
-        "opacity": "1",
+        "opacity": "0.5",
         "fillOpacity": 0.5,
         "fillColor": choropleth(feature.properties.count)
       }
@@ -225,12 +225,88 @@ function getSearchVar(variable) {
 }
 
 function choropleth(value) {
-    return value > 20 ? "#294E2F" :
-           value > 15 ? "#3B6C44" :
-           value > 10 ? "#4E8D59" :
-           value > 5  ? "#63AF70" :
-           value > 0  ? "#78D287" :
-                        "#bbb";
+    return value > 20 ? "#045a8d" :
+           value > 15 ? "#2b8cbe" :
+           value > 10 ? "#74a9cf" :
+           value > 5  ? "#bdc9e1" :
+           value > 0  ? "#f1eef6" :
+                        "#333";
   }
 
 occPage.init();
+
+
+var margin = {top: 20, right: 30, bottom: 30, left: 30},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10, "");
+
+var svg = d3.select("#graph").append("svg")
+    .attr("id", "graphsvg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("id", "graphgroup")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.json("/api/calendar" + window.location.search, function(error, data) {
+  data.map(function(d) {
+    if (!d.count) {
+      d.count = 0;
+    }
+    d.count = parseInt(d.count);
+    return d;
+  });
+
+  x.domain(data.map(function(d) { return d.month_name; }));
+  y.domain([0, d3.max(data, function(d) { return d.count; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Occurrences");
+
+  svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.month_name); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.count); })
+      .attr("height", function(d) { return height - y(d.count); });
+
+  resizeGraph();
+});
+
+function resizeGraph() {
+
+  var scale = d3.select("#graph").style("width").replace("px", "");
+  var multiplier = d3.select("#graph").style("height").replace("px", "");
+  d3.select("#graphgroup").attr("transform", "scale(" + scale/900 + ")translate(" + margin.left + "," + margin.top + ")");
+  //d3.select("#graphsvg").attr("height", multiplier*0.54);
+}
+d3.select(window).on("resize", resizeGraph);

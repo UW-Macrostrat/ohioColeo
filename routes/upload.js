@@ -67,7 +67,7 @@ exports.upload = function(req, res) {
 exports.uploadPost = function(req, res) {
     // Store the contents of the form for (possible) use later
     req.session.upload = req.body;
-    console.log(req._limit)
+    //console.log(req._limit)
     console.log(Object.keys(req.body).length, req.body);
 
     // Create a date for use throughout
