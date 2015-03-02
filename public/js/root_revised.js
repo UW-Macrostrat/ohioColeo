@@ -173,7 +173,7 @@ var indexPage = (function() {
       data.forEach(function(d) {
         var geometry = d.geometry.split(" ");
         var marker = new L.Marker([parseFloat(geometry[0]), parseFloat(geometry[1])])
-                          .bindPopup("<strong>Taxon:</strong> " + d.taxon_name + "<br><strong>Specimens: </strong>" + d.n_total_specimens + "<br><strong>Collector: </strong>" + d.collector);
+                          .bindPopup("<strong>Taxon:</strong> <a href='/occurrences?oid=" + d.id + "'>" + d.taxon_name + "</a><br><strong>Specimens: </strong>" + d.n_total_specimens + "<br><strong>Collector: </strong>" + d.collector);
         clusterLayer.addLayer(marker);
       });
 

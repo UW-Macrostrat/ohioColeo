@@ -128,7 +128,7 @@ exports.families = function(req, res) {
 
   //console.log(joins, where, params);
 
-  client.query("SELECT taxon_family, count(*) as count FROM neodb.occurrences o JOIN neodb.taxa t ON o.taxon_id = t.id " + joins + where + " GROUP BY taxon_family ORDER BY taxon_family asc", params, function(error, data) { 
+  client.query("SELECT taxon_family, count(*) as count, count(distinct concat(taxon_genus, ' ', taxon_species)) as distinct_taxa FROM neodb.occurrences o JOIN neodb.taxa t ON o.taxon_id = t.id " + joins + where + " GROUP BY taxon_family ORDER BY taxon_family asc", params, function(error, data) { 
     if (error) {
       console.log(error);
       res.json("Error on /api/familes - ", error);
@@ -158,9 +158,9 @@ exports.occurrences = function(req, res) {
 
   var params = [];
   var query = "\
-    SELECT o.id, to_char(o.collection_date_start, 'Mon DD, YYYY') AS collection_start_date, to_char(o.collection_date_end, 'Mon DD, YYYY') AS collection_end_date, o.location_note, o.n_total_specimens, o.only_observed, ST_AsLatLonText(o.the_geom, 'D.DDDDDD') AS geometry, o.fips, CONCAT(p.first_name, ' ', p.last_name) AS collector, p.id AS collector_id, t.taxon_name, t.common_name, t.taxon_author, t.taxon_family, t.taxon_genus, t.taxon_species, cm.collection_method, b.bait, media.collection_medium, n.note, e.environ, i.main_file AS image, i.description AS image_description, ST_AsLatLonText(i.the_geom, 'D.DDDDDD') AS image_geometry, gb.geom_basis \
+    SELECT DISTINCT ON (o.id) o.id, to_char(o.collection_date_start, 'Mon DD, YYYY') AS collection_start_date, to_char(o.collection_date_end, 'Mon DD, YYYY') AS collection_end_date, o.location_note, o.n_total_specimens, o.n_male_specimens, o.n_female_specimens, o.only_observed, ST_AsLatLonText(o.the_geom, 'D.DDDDDD') AS geometry, o.fips, CONCAT(p.first_name, ' ', p.last_name) AS collector, p.id AS collector_id, t.id AS taxon_id, t.taxon_name, t.common_name, t.taxon_author, t.taxon_family, t.pbdb_family_no, t.taxon_genus, t.pbdb_genus_no, t.taxon_species, t.pbdb_species_no, cm.id AS collection_method_id, cm.collection_method, b.id AS bait_id, b.bait, media.id AS collection_medium_id, media.collection_medium, n.id AS note_id, n.note, e.id AS environ_id, e.environ, i.id AS image_id, i.main_file AS image, i.description AS image_description, to_char(i.image_date, 'Mon DD, YYYY') AS image_date, ST_AsLatLonText(i.the_geom, 'D.DDDDDD') AS image_geometry, CONCAT(p3.first_name, ' ', p3.last_name) AS photographer, p3.id AS photographer_id, gb.id AS geom_basis_id, gb.geom_basis, CONCAT(p2.first_name, ' ', p2.last_name) AS determiner, p2.id AS determiner_id \
     FROM neodb.occurrences o \
-    LEFT JOIN neodb.taxa t ON o.taxon_ID = t.id \
+    LEFT JOIN neodb.taxa t ON o.taxon_id = t.id \
     LEFT JOIN neodb.collection_methods cm ON o.method_id = cm.id \
     LEFT JOIN neodb.baits b ON o.bait_id = b.id \
     LEFT JOIN neodb.collection_media media ON o.medium_id = media.id \
@@ -171,6 +171,9 @@ exports.occurrences = function(req, res) {
     LEFT JOIN neodb.environments e ON oe.environment_id = e.id \
     LEFT JOIN neodb.occurrences_images oi ON o.id = oi.occurrence_id \
     LEFT JOIN neodb.images i ON oi.image_id = i.id \
+    LEFT JOIN neodb.people p3 ON i.photographer_id = p3.id \
+    LEFT JOIN neodb.opinions ops ON o.id = ops.occurrence_id \
+    LEFT JOIN neodb.people p2 ON ops.determiner_id = p2.id \
     LEFT JOIN neodb.geom_bases gb ON o.geom_basis_id = gb.id \
     ";
 
@@ -225,11 +228,11 @@ exports.occurrences = function(req, res) {
   if (req.query.oid) {
     if (params.length > 0) {
       var placeholder = "$" + (params.length + 1);
-      query += "AND taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_name in (SELECT taxon_name FROM neodb.taxa WHERE id in (SELECT taxon_id FROM neodb.occurrences WHERE id = " + placeholder + "))) ";
+      query += "AND o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_name in (SELECT taxon_name FROM neodb.taxa WHERE id in (SELECT taxon_id FROM neodb.occurrences WHERE id = " + placeholder + "))) ";
       params.push(req.query.oid);
     } else {
       var placeholder = "$" + (params.length + 1);
-      query += "WHERE taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_name in (SELECT taxon_name FROM neodb.taxa WHERE id in (SELECT taxon_id FROM neodb.occurrences WHERE id = " + placeholder + "))) ";
+      query += "WHERE o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_name in (SELECT taxon_name FROM neodb.taxa WHERE id in (SELECT taxon_id FROM neodb.occurrences WHERE id = " + placeholder + "))) ";
       params.push(req.query.oid);
     }
   }
@@ -238,11 +241,11 @@ exports.occurrences = function(req, res) {
   if (req.query.taxon_name) {
     if (params.length > 0) {
       var placeholder = "$" + (params.length + 1);
-      query += "AND taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_name = " + placeholder + " OR taxon_genus = " + placeholder + " OR taxon_species = " + placeholder + " OR taxon_family = " + placeholder + ") ";
+      query += "AND o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_name = " + placeholder + " OR taxon_genus = " + placeholder + " OR taxon_species = " + placeholder + " OR taxon_family = " + placeholder + ") ";
       params.push(req.query.taxon_name);
     } else {
       var placeholder = "$" + (params.length + 1);
-      query += "WHERE taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_name = " + placeholder + " OR taxon_genus = " + placeholder + " OR taxon_species = " + placeholder + " OR taxon_family = " + placeholder + ") ";
+      query += "WHERE o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_name = " + placeholder + " OR taxon_genus = " + placeholder + " OR taxon_species = " + placeholder + " OR taxon_family = " + placeholder + ") ";
       params.push(req.query.taxon_name);
     }
   }
@@ -251,9 +254,9 @@ exports.occurrences = function(req, res) {
     var placeholder = "$" + (params.length + 1);
 
     if (params.length > 0) {
-      query += "AND taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_order = " + placeholder + ") ";
+      query += "AND o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_order = " + placeholder + ") ";
     } else {
-      query += "WHERE taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_order = " + placeholder + ") ";
+      query += "WHERE o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_order = " + placeholder + ") ";
     }
     params.push(req.query.order);
   }
@@ -262,9 +265,9 @@ exports.occurrences = function(req, res) {
     var placeholder = "$" + (params.length + 1);
     
     if (params.length > 0) {
-      query += "AND taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_family = " + placeholder + ") ";
+      query += "AND o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_family = " + placeholder + ") ";
     } else {
-      query += "WHERE taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_family = " + placeholder + ") ";
+      query += "WHERE o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_family = " + placeholder + ") ";
     }
     params.push(req.query.family);
   }
@@ -273,9 +276,9 @@ exports.occurrences = function(req, res) {
     var placeholder = "$" + (params.length + 1);
     
     if (params.length > 0) {
-      query += "AND taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_genus = " + placeholder + ") ";
+      query += "AND o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_genus = " + placeholder + ") ";
     } else {
-      query += "WHERE taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_genus = " + placeholder + ") ";
+      query += "WHERE o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_genus = " + placeholder + ") ";
     }
     params.push(req.query.genus);
   }
@@ -284,9 +287,9 @@ exports.occurrences = function(req, res) {
     var placeholder = "$" + (params.length + 1);
     
     if (params.length > 0) {
-      query += "AND taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_species = " + placeholder + ") ";
+      query += "AND o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_species = " + placeholder + ") ";
     } else {
-      query += "WHERE taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_genus = " + placeholder + ") ";
+      query += "WHERE o.taxon_id in (SELECT id FROM neodb.taxa WHERE taxon_genus = " + placeholder + ") ";
     }
     params.push(req.query.species);
   }
@@ -304,8 +307,8 @@ exports.occurrences = function(req, res) {
     }
   } 
 
-  query += " ORDER BY o.created_on DESC";
-
+  query += " ORDER BY o.id DESC";
+  console.log(query);
   client.query(query, params, function(err, result) {
     if (err) {
       console.log(err);
@@ -363,3 +366,56 @@ exports.autocomplete = function(req, res) {
     });
   }
 }
+
+
+
+exports.calendarstats = function(req, res) {
+  var where = [],
+      params = [];
+
+  if (req.query.family) {
+    where.push(" taxon_id IN (SELECT id FROM neodb.taxa WHERE taxon_family ILIKE $" + (params.length + 1) + ")");
+    params.push(req.query.family);
+  }
+
+  if (req.query.collector) {
+    where.push(" id IN (select occurrence_id from neodb.occurrences_collectors JOIN neodb.people ON occurrences_collectors.collector_id = people.id WHERE last_name ILIKE $" + (params.length + 1) + ")");
+    params.push(req.query.collector);
+  }
+
+  if (req.query.taxon_name) {
+    where.push(" taxon_id IN (select id from neodb.taxa WHERE taxon_name ILIKE $" + (params.length + 1) + ")");
+    params.push(req.query.taxon_name);
+  }
+
+  if (req.query.county) {
+    where.push(" id IN (select id from neodb.occurrences join neodb.ohio on occurrences.fips = ohio.fips WHERE name ILIKE $" + (params.length + 1) + ")");
+    params.push(req.query.county);
+  }
+
+  if (req.query.order) {
+    where.push(" taxon_id IN (select id from neodb.taxa WHERE taxon_order ILIKE $" + (params.length + 1) + ")");
+    params.push(req.query.order);
+  }
+
+  if (req.query.genus) {
+    where.push(" taxon_id IN (select id from neodb.taxa WHERE taxon_genus ILIKE $" + (params.length + 1) + ")");
+    params.push(req.query.genus);
+  }
+
+  if (req.query.species) {
+    where.push(" taxon_id IN (select id from neodb.taxa WHERE taxon_species ILIKE $" + (params.length + 1) + ")");
+    params.push(req.query.species);
+  }
+
+  client.query("select date_part('month', collection_date_start) as month, count(occurrences.id) FROM neodb.occurrences " + ((where.length > 0) ? "WHERE " + where.join(", AND ")  : "") + " group by month order by month", params, function(e, data) {
+    if (e) console.log(e);
+    res.json(data.rows);
+  });
+
+}
+
+
+
+
+

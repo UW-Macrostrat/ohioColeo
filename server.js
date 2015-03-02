@@ -38,12 +38,20 @@ function checkAuth(req, res, next) {
 app.get('/', standard.root);
 app.get('/occurrences', standard.occurrences);
 app.get('/families', standard.family);
+app.get('/mybeetles', checkAuth, standard.mybeetles);
 
 // Upload form routes
 app.get('/addBeetle', checkAuth, upload.upload);
 app.get('/addBeetle/:form', checkAuth, upload.upload);
 app.post('/addBeetle', checkAuth, upload.uploadPost);
 app.get('/addBeetleSuccess', checkAuth, upload.success);
+
+app.get('/edit', checkAuth, standard.edit);
+app.post('/edit', checkAuth, standard.editUpdate);
+
+app.get('/delete', checkAuth, standard.deleteBeetle);
+
+app.get('/download', standard.download);
 
 // Log in and out
 app.post('/verify', login.verify); // Boolean check of email and password
@@ -57,6 +65,7 @@ app.get('/api/families', api.families);
 app.get('/api/occurrences', api.occurrences);
 app.get('/api/autocomplete', api.autocomplete);
 app.get('/api/autocomplete/:type', api.autocomplete);
+app.get('/api/calendar', api.calendarstats);
 
 
 // Handle 404

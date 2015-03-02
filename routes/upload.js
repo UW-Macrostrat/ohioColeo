@@ -582,6 +582,7 @@ exports.uploadPost = function(req, res) {
 exports.success = function(req, res) {
     res.render("uploadSuccess", {
       loggedin: (req.session.user_id) ? true : false,
+      last_name: (req.session.last_name) ? req.session.last_name : "",
       username: (req.session.user_id) ? req.session.name : "",
       partials: {
         header: "partials/navbar"

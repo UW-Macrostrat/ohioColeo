@@ -20,9 +20,7 @@
 
     <div class="container-fluid">
       <div class="row" id="filterRow">
-        <div class="col-sm-12">
-
-        </div>
+        <div class="col-sm-12"></div>
       </div>
 
       <div class="row">
@@ -32,8 +30,8 @@
               <tr>
                 <th>More Info</th>
                 <th>Family</th>
-                <th>Occurrences</th>
-                <th>Species</th>
+                <th>Taxon</th>
+                <th>Collector</th>
               </tr>
             </thead>
             <tbody id="resultTbody"></tbody>
@@ -55,6 +53,18 @@
     <script src="/bower_components/validator-js/validator.min.js"></script>
 
     <script src="/js/common.js"></script>
-    <script src="/js/family.js"></script>
+    <script src="/js/mybeetles.js"></script>
+
+    <script type="text/javascript">
+      $("#delete").click(function(d) {
+        if (window.confirm("Do you really want to delete this record?")) {
+          return true;
+        } else {
+          d.preventDefault();
+          return false;
+        }
+      })
+
+    </script>
   </body>
 </html>

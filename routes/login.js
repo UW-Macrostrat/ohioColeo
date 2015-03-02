@@ -21,6 +21,7 @@ exports.login = function(req, res) {
     // Store user ID and name in a cookie
     req.session.user_id = result.rows[0].id;
     req.session.name = result.rows[0].first_name + " " + result.rows[0].last_name;
+    req.session.last_name = result.rows[0].last_name;
     req.session.institution_id = result.rows[0].institution_id;
 
     // Redirect back to whatever page they are currently on

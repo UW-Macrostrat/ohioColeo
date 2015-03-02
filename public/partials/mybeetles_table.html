@@ -8,7 +8,7 @@
     </div>
   </td>
   <td>{{taxon_family}}</td>
-  <td class="taxon_name">{{#taxon_species}}<i>{{taxon_genus}} {{taxon_species}}</i>{{/taxon_species}}{{^taxon_species}}{{#taxon_genus}}<i>{{taxon_genus}}</i>{{/taxon_genus}}{{^taxon_genus}}{{taxon_name}}{{/taxon_genus}}{{/taxon_species}}</td>
+  <td class="taxon_name">{{#taxon_species}}<i>{{taxon_species}}</i>{{/taxon_species}}{{^taxon_species}}{{taxon_name}}{{/taxon_species}}</td>
   <td>{{collector}}</td>
 </tr>
 <tr>
@@ -47,6 +47,9 @@
             <strong>Location:</strong> {{geometry}} {{#geom_basis}} <small> ({{geom_basis}}) </small> {{/geom_basis}} {{#location_note}}, {{location_note}} {{/location_note}}<br><br>
 
             {{#note}}<strong>Other notes:</strong> {{note}} <br><br>{{/note}}
+
+            <a id="delete" href="/delete?id={{id}}">Delete record</a>
+            <a id="edit" href="/edit?id={{id}}">Edit record</a>
           </div>
           <div class="col-xs-6">
             {{#image}} 

@@ -1,34 +1,6 @@
 var uploadForm = (function() {
   var map;
 
-  // Form pages - used for the history API
-  var formPages = {
-    "taxon_info": {
-      div: "taxon_info",
-      num: 1
-    },
-    "location": {
-      div: "location",
-      num: 2
-    },
-    "collection_info": {
-      div: "collection_info",
-      num: 3
-    },
-    "notes": {
-      div: "notes",
-      num: 4
-    },
-    "photo": {
-      div: "image",
-      num: 5
-    },
-    "review": {
-      div: "review",
-      num: 6
-    }
-  }
-
   // Used for making sure either collection or photo location is populated
   var referrer = "";
 
@@ -47,12 +19,14 @@ var uploadForm = (function() {
     $('#collectionDatepicker').datepicker({
         endDate: "today",
         autoclose: true,
+        format: 'M dd, yyyy',
         startView: 2
     });
 
     $('#photoDatepicker').datepicker({
         endDate: "today",
         autoclose: true,
+        format: 'M dd, yyyy',
         startView: 2
     });
 
@@ -830,24 +804,14 @@ var uploadForm = (function() {
   function handleLoad(href) {
     var page = href.replace("/addBeetle", "");
     page = page.replace("/", "");
-    var data = formPages[page];
+
     updateContent(data);
   }
 
   // Handler for all links related to form pages
   function handleClick(event) {
-    if (event.target.getAttribute('href')) {
-      var formPage = event.target.getAttribute('href').split('/').pop(),
-          data = formPages[formPage] || null;
-    } else {
-      var formPage = event.target.parentNode.getAttribute('href').split('/').pop(),
-          data = formPages[formPage] || null;
-    }
-      
-    updateContent(data);
 
-    // Add an item to the history log
-    history.pushState(data, event.target.textContent, event.target.href);
+    updateContent(data);
 
     return event.preventDefault();
   }
@@ -1161,30 +1125,67 @@ function fillForm() {
       }
     });
   }
-    
 }
+
+
 
 $(document).ready(function() {
   uploadForm.init();
-  fillForm();
-  // On browser navigation, load the proper form
-  window.addEventListener('popstate', function(event) {
-    uploadForm.updateContent(event.state);
-  });
+  //fillForm();
+  var id = window.location.search.replace("?id=", "");
+  $.getJSON("/api/occurrences?oid=" + id, function(data) {
+    Object.keys(data[0]).forEach(function(d) {
+      $("[name=" + d + "]").val(data[0][d]);
+    });
+    $("[name=determiner]").val(data[0]["determiner_id"]);
+    $("[name=collector]").val(data[0]["collector_id"]);
+    $("[name=photographer]").val(data[0]["photographer_id"]);
+    $("[name=collection_method]").val(data[0]["collection_method_id"]);
 
-  // If no form page specified, go to the first page
-  if (window.location.pathname === "/addBeetle") {
-    history.pushState({
-      div: "taxon_info"
-    }, document.title, "/addBeetle/taxon_info");
+    $("[name=bait_type]").val(data[0]["bait_id"]);
+    $("[name=collection_medium]").val(data[0]["collection_medium_id"]);
+    $("[name=environ]").val(data[0]["environ_id"]);
+    $("[name=geom_basis]").val(data[0]["geom_basis_id"]);
 
-    uploadForm.updateContent(history.state);
-  // Otherwise go to the requested form page
-  } else {
-    uploadForm.handleLoad(window.location.pathname);
-  }
+    if (data[0].image) {
+      $("#imageToUpload").attr("src", "/images/full/" + data[0].image);
+      $("output").css("display", "block");
+      $("#dropTarget").css("display", "none");
+    }
+    
+
+    var coords = data[0]["geometry"].split(" ");
+
+    $("[name=lat]").val(coords[0]);
+    $("#selectedLat").html(coords[0]);
+    $("[name=lng]").val(coords[1]);
+    $("#selectedLng").html(coords[1]);
 
 
+    var photo_coords = data[0]["image_geometry"].split(" ");
+    $("[name=image_id]", data[0]["image_id"]);
+
+    $("#photolat").val(photo_coords[0]);
+    $("#selectedLatPhoto").html(photo_coords[0]);
+    $("#photolng").val(photo_coords[1]);
+    $("#selectedLngPhoto").html(photo_coords[1]);
+
+    $("[name=occurrence_id]").val(data[0]["id"]);
+    $("[name=taxon_id]").val(data[0]["taxon_id"]);
+
+    $("[name=note_id]").val(data[0]["note_id"]);
+
+    if (data[0]["only_observed"] == true) {
+      $("[name=only_observed]").filter(function(d) {
+        console.log(d);
+        if (d.text === "Observed") {
+
+          $(this).attr("checked:true")
+        }
+      })
+    }
+
+  })
   uploadForm.resizeModal();
 });
 

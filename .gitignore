@@ -23,9 +23,10 @@ setup/db_setup.txt
 setup/reference.sql
 setup/remove_tests.sql
 
-public/images/full/*
-public/images/main/*
-public/images/thumbs/*
+public/images/full
+public/images/main
+public/images/thumbs
+
 routes/credentials.js
 
 .DS_Store
