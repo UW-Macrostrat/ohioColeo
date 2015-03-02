@@ -12,7 +12,7 @@
 }
 
 #resultTbody > tr > td {
-  text-align: center;
+  text-align: left;
 }
 
 .noBoarder {
@@ -34,4 +34,8 @@
 
 .occurrenceImage {
   width: 100%;
+}
+
+#resultTable > thead > tr > th {
+  text-align: left;
 }
