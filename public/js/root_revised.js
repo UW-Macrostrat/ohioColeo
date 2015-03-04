@@ -179,6 +179,18 @@ var indexPage = (function() {
 
       //clusterLayer.addTo(map);
     });
+
+    $.getJSON("/api/stats", function(data) {
+      $("#families").html(data[0].families + " families");
+      $("#occurrences").html(data[0].occurrences + " occurrences");
+      $("#photos").html(data[0].photos + " photos");
+      $("#contributors").html(data[0].contributors + " contributors");
+
+      data.forEach(function(d, i) {
+        $("#family-image-" + (i + 1)).css("background-image", "url(/images/main/" + d.image_id + ".jpg)");
+        $("#family-desc-" + (i + 1)).html("<a href='/occurrences?family=" + d.taxon_family + "'>" + d.taxon_family + "</a>");
+      });
+    });
   }
 
   return {
