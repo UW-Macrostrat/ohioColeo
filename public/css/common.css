@@ -159,4 +159,24 @@ i:hover {
 .x.axis path {
   display: none;
 }
+
+.stats {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bolder;
+  padding: 20px;
+  background-color: rgba(8,8,8,0.7);
+  color: whitesmoke;
+}
+
+.family-desc {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bolder;
+  padding: 20px;
+}
+.family-image {
+  height: 400px;
+  background-repeat: no-repeat;
+}
     
