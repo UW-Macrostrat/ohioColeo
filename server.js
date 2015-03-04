@@ -66,7 +66,7 @@ app.get('/api/occurrences', api.occurrences);
 app.get('/api/autocomplete', api.autocomplete);
 app.get('/api/autocomplete/:type', api.autocomplete);
 app.get('/api/calendar', api.calendarstats);
-
+app.get('/api/stats', api.stats);
 
 // Handle 404
 app.use(function(req, res) {

@@ -416,6 +416,21 @@ exports.calendarstats = function(req, res) {
 }
 
 
+exports.stats = function(req, res) {
+  client.query("with families as (select count(distinct taxon_family) as families from neodb.occurrences o join neodb.taxa t on o.taxon_id = t.id),occurrences as (select count(*) as occurrences FROM neodb.occurrences),photos as (select count(distinct image_id) as photos FROM neodb.occurrences_images),contributors as (select count(*) as contributors from neodb.people),family_with_photos AS (select count(distinct taxon_family) AS fcount FROM neodb.taxa t JOIN neodb.occurrences o ON o.taxon_id = t.id JOIN neodb.occurrences_images oi ON o.id = oi.occurrence_id),family_images AS (select distinct on (taxon_family) taxon_family, count(*) AS count, image_id FROM neodb.taxa t JOIN neodb.occurrences o ON o.taxon_id = t.id JOIN neodb.occurrences_images oi ON o.id = oi.occurrence_id GROUP BY taxon_family, image_id OFFSET (random()*(select fcount-3 from family_with_photos)) LIMIT 3) select * from families, occurrences, photos, contributors, family_images", function(error, data) {
+    res.json(data.rows);
+  });
+}
 
+/*
+with families as (select count(distinct taxon_family) as families from neodb.occurrences o join neodb.taxa t on o.taxon_id = t.id),
+     occurrences as (select count(*) as occurrences FROM neodb.occurrences),
+     photos as (select count(distinct image_id) as photos FROM neodb.occurrences_images),
+     contributors as (select count(*) as contributors from neodb.people),
+     family_with_photos AS (select count(distinct taxon_family) AS fcount FROM neodb.taxa t JOIN neodb.occurrences o ON o.taxon_id = t.id JOIN neodb.occurrences_images oi ON o.id = oi.occurrence_id),
+    family_images AS (select distinct on (taxon_family) taxon_family, count(*) AS count, image_id FROM neodb.taxa t JOIN neodb.occurrences o ON o.taxon_id = t.id JOIN neodb.occurrences_images oi ON o.id = oi.occurrence_id GROUP BY taxon_family, image_id OFFSET (random()*(select fcount-3 from family_with_photos)) LIMIT 3
+)
+select * from families, occurrences, photos, contributors, family_images
+*/
 
 
