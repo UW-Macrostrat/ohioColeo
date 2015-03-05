@@ -1081,10 +1081,10 @@ function validate() {
   else {
     //localStorage.setItem("formData", "");
     // Enable the disabled
-    var disabled = $("#uploadForm").find(':input:disabled').removeAttr('disabled');
+    $("#uploadForm").find(':input:disabled').removeAttr('disabled');
     console.log($("#uploadForm").serialize())
     //return false;
-    return true;
+    setTimeout(function() { return true}, 1000);
   }
 
 } // end function validate
