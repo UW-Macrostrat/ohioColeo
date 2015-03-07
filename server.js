@@ -38,6 +38,7 @@ function checkAuth(req, res, next) {
 app.get('/', standard.root);
 app.get('/occurrences', standard.occurrences);
 app.get('/families', standard.family);
+app.get('/map', standard.map);
 app.get('/mybeetles', checkAuth, standard.mybeetles);
 
 // Upload form routes

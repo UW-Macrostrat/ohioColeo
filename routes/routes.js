@@ -38,6 +38,30 @@ exports.root = function(req, res) {
   });
 }
 
+exports.map = function(req, res) {
+  // TODO: Make collectors and counties unqiue api routes
+  var collectors, 
+      counties;
+
+  client.query("SELECT CONCAT(p.first_name , ' ' , p.last_name) AS name, p.last_name as last_name, p.id FROM neodb.people p WHERE p.id IN (SELECT DISTINCT oc.collector_id FROM neodb.occurrences_collectors oc) ORDER BY p.last_name ASC;", function(err, rows, fields) {
+    collectors = rows.rows;
+  });
+
+  client.query("SELECT name, fips FROM ohio_summary WHERE taxa > 0 ORDER BY name ASC;", function(err, rows, fields) {
+    counties = rows.rows;
+
+    res.render('map', {
+      loggedin: (req.session.user_id) ? true : false,
+      username: (req.session.user_id) ? req.session.name : "",
+      last_name: (req.session.last_name) ? req.session.last_name : "",
+      collectors: collectors,
+      partials: {
+        header: "partials/navbar"
+      }
+    });
+  });
+}
+
 exports.occurrences = function(req, res) {
   /*
      Can accept req.query.id || req.query.county
