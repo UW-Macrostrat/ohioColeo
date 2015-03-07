@@ -90,6 +90,16 @@ exports.deleteBeetle = function(req, res) {
         console.log("DELETING");
         async.series([
           function(callback) {
+            client.query("delete from neodb.occurrences_environments where occurrence_id = $1", [req.query.id], function(e, d) {
+              if (e) {
+                callback(e);
+              } else {
+                callback(null);
+              }
+            });
+          },
+
+          function(callback) {
             client.query("delete from neodb.opinions where occurrence_id = $1", [req.query.id], function(e, d) {
               if (e) {
                 callback(e);
@@ -132,7 +142,7 @@ exports.deleteBeetle = function(req, res) {
         ], function(err, result) {
           if (err) {
             console.log("ERROR DELETEING - ", err);
-            res.send("Somethign went wrong");
+            res.send("Something went wrong...");
           } else {
             res.redirect("/myBeetles?collector=" + req.session.last_name);
           }
