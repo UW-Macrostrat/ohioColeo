@@ -115,7 +115,7 @@ var uploadForm = (function() {
 
       // Store the data
       var formData = $("#uploadForm").serializeObject();
-      localStorage.setItem("formData", JSON.stringify(formData));;
+     // localStorage.setItem("formData", JSON.stringify(formData));;
 
        // Disable the enabled
       disabled.attr('disabled','disabled');
@@ -1111,7 +1111,8 @@ $.fn.serializeObject = function() {
 function fillForm() {
   var $fields = $("#uploadForm :input"),
       keys = Object.keys($fields),
-      savedData = localStorage.getItem("formData");
+      savedData = null;
+     // savedData = localStorage.getItem("formData");
 
   if (savedData) {
     savedData = JSON.parse(savedData);
