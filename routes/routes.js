@@ -334,7 +334,7 @@ exports.editUpdate = function(req, res) {
           },
 
           function(callback) {
-            if (req.body.note.length < 2) {
+            if (req.body.note && req.body.note.length < 2) {
               return callback(null);
             }
 
@@ -348,15 +348,20 @@ exports.editUpdate = function(req, res) {
           },
 
           function(callback) {
-            var coords = (req.body.photolat) ? ("POINT(" + req.body.photolng + " " + req.body.photolat + ")") : null
-            client.query("UPDATE neodb.images SET photographer_id = $1, description = $2, image_date = to_date($3, 'Mon DD, YYYY'), the_geom = ST_GeomFromText($4, 4326) WHERE id = $5", [parseInt(req.body.photographer), req.body.image_description, req.body.image_date, coords, req.body.image_id.replace(".jpg", "") ], function(error, r) {
-              if (error) {
-                callback(error);
-              } else {
-                console.log("Updated images");
-                callback(null);
-              }
-            });
+            if (req.body.image_id) {
+              var coords = (req.body.photolat) ? ("POINT(" + req.body.photolng + " " + req.body.photolat + ")") : null
+              client.query("UPDATE neodb.images SET photographer_id = $1, description = $2, image_date = to_date($3, 'Mon DD, YYYY'), the_geom = ST_GeomFromText($4, 4326) WHERE id = $5", [parseInt(req.body.photographer), req.body.image_description, req.body.image_date, coords, req.body.image_id.replace(".jpg", "") ], function(error, r) {
+                if (error) {
+                  callback(error);
+                } else {
+                  console.log("Updated images");
+                  callback(null);
+                }
+              });
+            } else {
+              callback(null);
+            }
+              
           }
         ], function(error, d) {
           if (error) {
