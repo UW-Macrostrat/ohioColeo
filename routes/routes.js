@@ -368,7 +368,7 @@ exports.editUpdate = function(req, res) {
             console.log(error);
             res.json("Something went wrong");
           } else {
-            res.redirect("/myBeetles?collector=" + req.session.last_name);
+            res.redirect("/myBeetles?enterer=" + req.session.last_name);
           }
         });
 

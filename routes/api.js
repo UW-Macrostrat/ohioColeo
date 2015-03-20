@@ -158,7 +158,7 @@ exports.occurrences = function(req, res) {
 
   var params = [];
   var query = "\
-    SELECT DISTINCT ON (o.id) o.id, to_char(o.collection_date_start, 'Mon DD, YYYY') AS collection_start_date, to_char(o.collection_date_end, 'Mon DD, YYYY') AS collection_end_date, o.location_note, o.n_total_specimens, o.n_male_specimens, o.n_female_specimens, o.only_observed, ST_AsLatLonText(o.the_geom, 'D.DDDDDD') AS geometry, o.fips, CONCAT(p.first_name, ' ', p.last_name) AS collector, p.id AS collector_id, t.id AS taxon_id, t.taxon_name, t.common_name, t.taxon_author, t.taxon_family, t.pbdb_family_no, t.taxon_genus, t.pbdb_genus_no, t.taxon_species, t.pbdb_species_no, cm.id AS collection_method_id, cm.collection_method, b.id AS bait_id, b.bait, media.id AS collection_medium_id, media.collection_medium, n.id AS note_id, n.note, e.id AS environ_id, e.environ, i.id AS image_id, i.main_file AS image, i.description AS image_description, to_char(i.image_date, 'Mon DD, YYYY') AS image_date, ST_AsLatLonText(i.the_geom, 'D.DDDDDD') AS image_geometry, CONCAT(p3.first_name, ' ', p3.last_name) AS photographer, p3.id AS photographer_id, gb.id AS geom_basis_id, gb.geom_basis, CONCAT(p2.first_name, ' ', p2.last_name) AS determiner, p2.id AS determiner_id \
+    SELECT o.id, to_char(o.collection_date_start, 'Mon DD, YYYY') AS collection_start_date, to_char(o.collection_date_end, 'Mon DD, YYYY') AS collection_end_date, o.location_note, o.n_total_specimens, o.n_male_specimens, o.n_female_specimens, o.only_observed, ST_AsLatLonText(o.the_geom, 'D.DDDDDD') AS geometry, o.fips, CONCAT(p.first_name, ' ', p.last_name) AS collector, p.id AS collector_id, t.id AS taxon_id, t.taxon_name, t.common_name, t.taxon_author, t.taxon_family, t.pbdb_family_no, t.taxon_genus, t.pbdb_genus_no, t.taxon_species, t.pbdb_species_no, cm.id AS collection_method_id, cm.collection_method, b.id AS bait_id, b.bait, media.id AS collection_medium_id, media.collection_medium, n.id AS note_id, n.note, e.id AS environ_id, e.environ, i.id AS image_id, i.main_file AS image, i.description AS image_description, to_char(i.image_date, 'Mon DD, YYYY') AS image_date, ST_AsLatLonText(i.the_geom, 'D.DDDDDD') AS image_geometry, CONCAT(p3.first_name, ' ', p3.last_name) AS photographer, p3.id AS photographer_id, gb.id AS geom_basis_id, gb.geom_basis, CONCAT(p2.first_name, ' ', p2.last_name) AS determiner, p2.id AS determiner_id \
     FROM neodb.occurrences o \
     LEFT JOIN neodb.taxa t ON o.taxon_id = t.id \
     LEFT JOIN neodb.collection_methods cm ON o.method_id = cm.id \
@@ -177,6 +177,11 @@ exports.occurrences = function(req, res) {
     LEFT JOIN neodb.geom_bases gb ON o.geom_basis_id = gb.id \
     ";
 
+  if (req.query.enterer && req.query.enterer != "") {
+    var placeholder = "$" + (params.length + 1);
+    query += " JOIN neodb.people p0 ON o.enterer_id = p0.id WHERE p0.last_name = " + placeholder;
+    params.push(req.query.enterer)
+  }
 
   if (req.query.county && req.query.county !== "") {
     var placeholder = "$" + (params.length + 1);
@@ -307,7 +312,7 @@ exports.occurrences = function(req, res) {
     }
   } 
 
-  query += " ORDER BY o.id DESC";
+  query += " ORDER BY taxon_name ASC";
 
   client.query(query, params, function(err, result) {
     if (err) {
