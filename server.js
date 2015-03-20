@@ -27,7 +27,6 @@ app.enable('trust proxy');
 // Check if user is logged in on certain routes
 function checkAuth(req, res, next) {
   if (!req.session.user_id) {
-    res.send(401);
     res.redirect('back');
   } else {
     next();
