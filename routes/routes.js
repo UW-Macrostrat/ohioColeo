@@ -168,7 +168,7 @@ exports.deleteBeetle = function(req, res) {
             console.log("ERROR DELETEING - ", err);
             res.send("Something went wrong...");
           } else {
-            res.redirect("/myBeetles?collector=" + req.session.last_name);
+            res.redirect("/myBeetles?enterer=" + req.session.last_name);
           }
         });
 
