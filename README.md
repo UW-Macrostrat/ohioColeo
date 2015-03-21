@@ -2,7 +2,7 @@
 
 ### Dependencies:
 
-- PostgreSQL 9.3
+- PostgreSQL 9.3 (and <a href='https://github.com/UW-Macrostrat/neodb'>neodb schema</a>)
 - PostGIS 2.x
 - Node/NPM (````brew install node````)
 - Bower (````npm install -g bower````)
