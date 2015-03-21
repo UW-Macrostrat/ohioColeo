@@ -7,10 +7,10 @@
       </div>
     </div>
   </td>
-  <td>{{taxon_family}}</td>
+  <td><a href="/occurrences?family={{taxon_family}}">{{taxon_family}}</a></td>
   <td class="taxon_name">
     {{#taxon_species}}
-      <i><a href="/occurrences?genus={{taxon_genus}}">{{taxon_genus}} {{taxon_species}}</a></i>
+      <i><a href="/occurrences?taxon_name={{taxon_genus}} {{taxon_species}}">{{taxon_genus}} {{taxon_species}}</a></i>
     {{/taxon_species}}
     {{^taxon_species}}
       {{#taxon_genus}}
