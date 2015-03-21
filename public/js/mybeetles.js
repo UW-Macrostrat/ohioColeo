@@ -7,40 +7,49 @@ var occPage = (function() {
   function getData() {
     var enterer = getSearchVar("enterer");
 
-    // Slop the URL together, as empty params are ignored in the api
-    $.ajax({
-      type:'GET',
-      url:'/api/occurrences?enterer=' + enterer, 
-      dataType: 'json', 
-      async: false,
-      success: function(result) {
-        if (result.length > 0 && result[0].id !== "") {
-          var data = {};
-          data.occurrences = result.slice(0);
-          updateMap(data.occurrences);
-          if (tablePartial.length < 1) {
-            $.ajax({
-              type: 'GET',
-              url: '/partials/mybeetles_table.html',
-              async: false,
-              success: function(partial) {
-                tablePartial = partial;
-                var output = Mustache.render(partial, data);
-
-                $("#resultTbody").html(output);
-              }
-            });
-          } else {
-            var output = Mustache.render(tablePartial, data);
-            $("#resultTbody").html(output);
+    if (enterer.length < 2) {
+      return false;
+    } else {
+      // Slop the URL together, as empty params are ignored in the api
+      $.ajax({
+        type:'GET',
+        url:'/api/occurrences?enterer=' + enterer, 
+        dataType: 'json', 
+        async: false,
+        success: function(result) {
+          if (result === "Unauthorized") {
+            return false;
           }
-        } else {
-          $("#resultTable").html("<h3>No results found</h3>");
+          if (result.length > 0 && result[0].id !== "") {
+            var data = {};
+            data.occurrences = result.slice(0);
+            updateMap(data.occurrences);
+            if (tablePartial.length < 1) {
+              $.ajax({
+                type: 'GET',
+                url: '/partials/mybeetles_table.html',
+                async: false,
+                success: function(partial) {
+                  tablePartial = partial;
+                  var output = Mustache.render(partial, data);
+
+                  $("#resultTbody").html(output);
+                }
+              });
+            } else {
+              var output = Mustache.render(tablePartial, data);
+              $("#resultTbody").html(output);
+            }
+          } else {
+            $("#resultTable").html("<h3>No results found</h3>");
+          }
+    
+            
         }
-  
-          
-      }
-    });
+      });
+    }
+
+      
   }
 
   function updateMap(data) {

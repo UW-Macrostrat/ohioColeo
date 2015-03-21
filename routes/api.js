@@ -178,9 +178,14 @@ exports.occurrences = function(req, res) {
     ";
 
   if (req.query.enterer && req.query.enterer != "") {
-    var placeholder = "$" + (params.length + 1);
-    query += " JOIN neodb.people p0 ON o.enterer_id = p0.id WHERE p0.last_name = " + placeholder;
-    params.push(req.query.enterer)
+    if (req.session.last_name === req.query.enterer) {
+      var placeholder = "$" + (params.length + 1);
+      query += " JOIN neodb.people p0 ON o.enterer_id = p0.id WHERE p0.last_name = " + placeholder;
+      params.push(req.query.enterer)
+    } else {
+      return res.json("Unauthorized");
+    }
+      
   }
 
   if (req.query.county && req.query.county !== "") {
