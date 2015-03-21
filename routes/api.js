@@ -420,7 +420,12 @@ exports.calendarstats = function(req, res) {
 
   client.query("with calendar AS (SELECT to_char(date_trunc('Month', dd):: date, 'Month') AS month_name, to_char(date_trunc('Month', dd):: date, 'MM')::numeric as month_no FROM generate_series( '2014-01-01'::timestamp, '2015-12-31'::timestamp, '1 month'::interval) dd group by month_name, month_no), count AS (select date_part('month', collection_date_start) as month, count(occurrences.id) FROM neodb.occurrences " + ((where.length > 0) ? "WHERE " + where.join(", AND ")  : "") + " group by month order by month) SELECT month_name, month_no, count FROM count FULL OUTER JOIN calendar ON count.month = calendar.month_no order by month_no asc", params, function(e, data) {
     if (e) console.log(e);
-    res.json(data.rows);
+    if (data.rows) {
+      res.json(data.rows);
+    } else {
+      res.json(null);
+    }
+    
   });
 
 }
